@@ -160,8 +160,8 @@ export const LayoutPreview: React.FC<LayoutPreviewProps> = ({
     >
       <div className="h-full w-full overflow-hidden rounded-2xl" style={{ backgroundColor: t.bg, color: t.text }}>
         {/* Topbar */}
-        <div className="flex h-14 items-center px-4" style={{ backgroundColor: t.header, borderBottom: `1px solid ${t.border}` }}>
-          <div className="flex w-[260px] items-center gap-3">
+        <div className="flex h-14 items-center" style={{ backgroundColor: t.header, borderBottom: `1px solid ${t.border}` }}>
+          <div className="flex w-[260px] items-center gap-1">
             <button
               type="button"
               className="grid h-9 w-9 place-items-center rounded-xl font-black"

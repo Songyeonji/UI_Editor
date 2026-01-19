@@ -141,14 +141,14 @@ export const ContentPreview: React.FC<ContentPreviewProps> = ({
               <thead style={{ backgroundColor: t.header, borderBottom: `1px solid ${t.border}` }}>
                 <tr>
                   {tableMode === 'checkable' && (
-                    <th className="px-4 py-3 text-left" style={{ width: '50px' }}>
-                      <input type="checkbox" className="h-4 w-4" />
+                    <th className="px-3 py-1.5 h-[33px] text-left text-[13px] font-extrabold" style={{ width: '50px' }}>
+                      <input type="checkbox" className="h-3 w-3" />
                     </th>
                   )}
                   {columns.map((col) => (
                     <th
                       key={col.id}
-                      className="px-4 py-3 text-left text-[13px] font-extrabold"
+                      className="px-3 py-1.5 h-[33px] text-left text-[13px] font-extrabold"
                       style={{ width: col.width ? `${col.width}%` : 'auto' }}
                     >
                       {col.header}
@@ -167,20 +167,27 @@ export const ContentPreview: React.FC<ContentPreviewProps> = ({
                       }}
                     >
                       {tableMode === 'checkable' && (
-                        <td className="px-4 py-3">
-                          <input type="checkbox" className="h-4 w-4" />
+                        <td className="px-3 py-1.5 h-[33px] ">
+                          <input type="checkbox" className="h-3 w-3" />
                         </td>
                       )}
                       {columns.map((col) => (
-                        <td key={col.id} className="px-4 py-3 text-[13px] font-semibold">
-                          {col.hasSwitch && typeof row.cells[col.id] === 'boolean' ? (
+                        <td key={col.id} className="px-3 py-1.5 h-[33px]  text-[13px] font-semibold">
+                          {col.cellType === 'switch' && typeof row.cells[col.id] === 'boolean' ? (
                             <label className="relative inline-flex cursor-pointer items-center">
                               <input type="checkbox" checked={row.cells[col.id] as boolean} readOnly className="peer sr-only" />
                               <div
-                                className="peer h-6 w-11 rounded-full after:absolute after:left-[2px] after:top-[2px] after:h-5 after:w-5 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-full"
+                                className="peer h-5 w-9 rounded-full after:absolute after:left-[2px] after:top-[2px] after:h-4 after:w-4 after:rounded-full after:bg-white after:transition-all after:content-[''] peer-checked:after:translate-x-4"
                                 style={{ backgroundColor: row.cells[col.id] ? accent : t.border }}
                               />
                             </label>
+                          ) : col.cellType === 'status' ? (
+                            <span
+                              className="text-[13px] font-extrabold"
+                              style={{ color: row.cells[col.id] === '허용' ? '#10b981' : '#ef4444' }}
+                            >
+                              {String(row.cells[col.id] ?? '-')}
+                            </span>
                           ) : (
                             String(row.cells[col.id] ?? '-')
                           )}

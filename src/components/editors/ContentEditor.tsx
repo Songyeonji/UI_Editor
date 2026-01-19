@@ -76,7 +76,7 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
     setExtraButtons((p) => p.map((x) => (x.id === id ? { ...x, variant } : x)));
 
   const addColumn = () => {
-    const newCol: TableColumn = { id: uid('col'), header: `컬럼${columns.length + 1}`, hasSwitch: false, width: undefined };
+    const newCol: TableColumn = { id: uid('col'), header: `컬럼${columns.length + 1}`, hasSwitch: false, cellType: 'text', width: undefined };
     setColumns((p) => [...p, newCol]);
     setRows((p) => p.map((r) => ({ ...r, cells: { ...r.cells, [newCol.id]: '데이터' } })));
   };
@@ -87,20 +87,24 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
   };
 
   const renameColumn = (id: string, header: string) => setColumns((p) => p.map((x) => (x.id === id ? { ...x, header } : x)));
-
-  const toggleSwitch = (id: string) =>
+  const changeCellType = (id: string, cellType: 'text' | 'switch' | 'status') => {
     setColumns((p) => {
       const col = p.find((x) => x.id === id);
       if (!col) return p;
-      const newHasSwitch = !col.hasSwitch;
+
       setRows((r) =>
         r.map((row) => ({
           ...row,
-          cells: { ...row.cells, [id]: newHasSwitch ? false : '데이터' },
+          cells: {
+            ...row.cells,
+            [id]: cellType === 'switch' ? false : cellType === 'status' ? '허용' : '데이터'
+          },
         }))
       );
-      return p.map((x) => (x.id === id ? { ...x, hasSwitch: newHasSwitch } : x));
+
+      return p.map((x) => (x.id === id ? { ...x, cellType, hasSwitch: cellType === 'switch' } : x));
     });
+  };
 
   const changeColumnWidth = (id: string, width: number | undefined) =>
     setColumns((p) => p.map((x) => (x.id === id ? { ...x, width } : x)));
@@ -151,7 +155,7 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
       {/* 옵션 */}
       <div className="grid gap-2">
         <div className="text-[12px] font-extrabold text-white/85">옵션</div>
-        
+
         <label className="flex items-center gap-2 rounded-2xl border border-white/15 bg-white/5 p-3">
           <input type="checkbox" checked={showOverlay} onChange={(e) => setShowOverlay(e.target.checked)} />
           <span className="text-[13px] font-semibold text-white/85">오버레이 표시 (반투명 레이어)</span>
@@ -379,11 +383,18 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
                 </button>
               </div>
 
-              <label className="flex items-center gap-2">
-                <input type="checkbox" checked={col.hasSwitch} onChange={() => toggleSwitch(col.id)} />
-                <span className="text-[11px] font-semibold text-white/70">스위치 사용</span>
+              <label className="grid gap-1">
+                <span className="text-[11px] font-semibold text-white/70">셀 타입</span>
+                <select
+                  className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
+                  value={col.cellType || 'text'}
+                  onChange={(e) => changeCellType(col.id, e.target.value as 'text' | 'switch' | 'status')}
+                >
+                  <option value="text">텍스트</option>
+                  <option value="switch">스위치</option>
+                  <option value="status">상태 (허용/차단)</option>
+                </select>
               </label>
-
               <label className="grid gap-1">
                 <span className="text-[11px] font-semibold text-white/70">열 넓이 (%, 빈 값 = 자동)</span>
                 <input
@@ -433,7 +444,7 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
                   <div key={col.id}>
                     <label className="grid gap-1">
                       <span className="text-[11px] font-semibold text-white/70">{col.header}</span>
-                      {col.hasSwitch ? (
+                      {col.cellType === 'switch' ? (
                         <label className="flex items-center gap-2">
                           <input
                             type="checkbox"
@@ -442,6 +453,15 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
                           />
                           <span className="text-[11px] font-semibold text-white/60">{row.cells[col.id] ? 'ON' : 'OFF'}</span>
                         </label>
+                      ) : col.cellType === 'status' ? (
+                        <select
+                          className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
+                          value={String(row.cells[col.id])}
+                          onChange={(e) => updateCellValue(row.id, col.id, e.target.value)}
+                        >
+                          <option value="허용">허용</option>
+                          <option value="차단">차단</option>
+                        </select>
                       ) : (
                         <input
                           className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"

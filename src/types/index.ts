@@ -25,7 +25,8 @@ export interface TableColumn {
   id: string;
   header: string;
   hasSwitch: boolean;
-  width?: number; // ✅ 퍼센트 단위 (0-100)
+  cellType?: 'text' | 'switch' | 'status'; // ✅ 추가
+  width?: number;
 }
 
 export interface TableRow {
