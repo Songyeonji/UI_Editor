@@ -1,6 +1,5 @@
 // App.tsx
-
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { TrayPreview } from './components/preview/TrayPreview';
 import { LayoutPreview } from './components/preview/LayoutPreview';
 import { ContentPreview } from './components/preview/ContentPreview';
