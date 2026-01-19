@@ -18,6 +18,8 @@ export const ApprovalPreview: React.FC<ApprovalPreviewProps> = ({
   formFields,
   previewScale,
 }) => {
+  const [openDropdownId, setOpenDropdownId] = React.useState<string | null>(null);
+
   return (
     <div
       className="absolute left-1/2 top-1/2"
@@ -56,13 +58,46 @@ export const ApprovalPreview: React.FC<ApprovalPreviewProps> = ({
               <label className="mb-1 block text-[12px] font-extrabold" style={{ color: t.text }}>
                 {field.label} {field.required && <span style={{ color: '#ef4444' }}>*</span>}
               </label>
-
               {field.type === 'dropdown' ? (
-                <div
-                  className="rounded-xl px-3 py-2 text-[12px] font-semibold"
-                  style={{ backgroundColor: t.panel, border: `1px solid ${t.border}`, color: t.text }}
-                >
-                  {field.options && field.options.length > 0 ? field.options[0].label : '옵션 선택'}
+                <div className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setOpenDropdownId(openDropdownId === field.id ? null : field.id)}
+                    className="flex w-full items-center justify-between rounded-xl px-3 py-2 text-[12px] font-semibold outline-none transition"
+                    style={{ backgroundColor: t.panel, border: `1px solid ${t.border}`, color: t.text }}
+                  >
+                    <span>{field.options && field.options.length > 0 ? field.options[0].label : '옵션 선택'}</span>
+                    <svg
+                      className="h-4 w-4 transition-transform"
+                      style={{ transform: openDropdownId === field.id ? 'rotate(180deg)' : 'rotate(0deg)' }}
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                    </svg>
+                  </button>
+
+                  {openDropdownId === field.id && field.options && (
+                    <div
+                      className="absolute left-0 right-0 top-full z-10 mt-1 rounded-xl py-1 shadow-lg"
+                      style={{ backgroundColor: t.panel, border: `1px solid ${t.border}` }}
+                    >
+                      {field.options.map((opt) => (
+                        <button
+                          key={opt.id}
+                          type="button"
+                          onClick={() => setOpenDropdownId(null)}
+                          className="w-full px-3 py-2 text-left text-[12px] font-semibold transition hover:bg-opacity-80"
+                          style={{ color: t.text, backgroundColor: 'transparent' }}
+                          onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = t.hover)}
+                          onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = 'transparent')}
+                        >
+                          {opt.label}
+                        </button>
+                      ))}
+                    </div>
+                  )}
                 </div>
               ) : field.label === '사유' ? (
                 <textarea

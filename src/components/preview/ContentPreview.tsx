@@ -114,7 +114,7 @@ export const ContentPreview: React.FC<ContentPreviewProps> = ({
           )}
 
           {/* 오른쪽 옵션 (메뉴 + Extra 버튼) */}
-          <div className="flex items-center gap-2">
+          <div className="flex items-center justify-end gap-2">
             {menuItems.map((menu, i) => (
               <button
                 key={i}
