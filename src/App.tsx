@@ -25,17 +25,52 @@ import type {
   SearchFilterConfig,
 } from './types';
 
+const STORAGE_KEY = 'design-playground-state';
+
 export default function App() {
-  const [tab, setTab] = useState<TabKey>('tray');
+  // ----- Session Storage Functions -----
+  const loadFromSession = () => {
+    const saved = sessionStorage.getItem(STORAGE_KEY);
+    if (!saved) return null;
+    try {
+      return JSON.parse(saved);
+    } catch {
+      return null;
+    }
+  };
+
+  const saveToSession = (state: any) => {
+    sessionStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  };
+
+  const [tab, setTab] = useState<TabKey>(() => {
+    const saved = loadFromSession();
+    return saved?.tab || 'tray';
+  });
 
   // ----- Tray State -----
-  const [trayType, setTrayType] = useState<TrayType>('info');
+  const [trayType, setTrayType] = useState<TrayType>(() => {
+    const saved = loadFromSession();
+    return saved?.trayType || 'info';
+  });
   const trayMeta = TRAY_META[trayType];
-  const [trayHeaderText, setTrayHeaderText] = useState('D-BUGGER · 정보 안내');
-  const [trayTitle, setTrayTitle] = useState('알림 제목입니다');
-  const [trayMessage, setTrayMessage] = useState(`여기에 알림 메시지 내용이 표시됩니다.\n여러 줄로 표시할 수 있습니다.`);
+  const [trayHeaderText, setTrayHeaderText] = useState(() => {
+    const saved = loadFromSession();
+    return saved?.trayHeaderText || 'D-BUGGER · 정보 안내';
+  });
+  const [trayTitle, setTrayTitle] = useState(() => {
+    const saved = loadFromSession();
+    return saved?.trayTitle || '알림 제목입니다';
+  });
+  const [trayMessage, setTrayMessage] = useState(() => {
+    const saved = loadFromSession();
+    return saved?.trayMessage || `여기에 알림 메시지 내용이 표시됩니다.\n여러 줄로 표시할 수 있습니다.`;
+  });
   const [trayTime, setTrayTime] = useState(() => formatNow());
-  const [trayButtonText, setTrayButtonText] = useState('확인하기');
+  const [trayButtonText, setTrayButtonText] = useState(() => {
+    const saved = loadFromSession();
+    return saved?.trayButtonText || '확인하기';
+  });
   const [trayClosing, setTrayClosing] = useState(false);
 
   const closeTray = () => {
@@ -67,147 +102,245 @@ export default function App() {
   };
 
   // ----- Layout State -----
-  const [themeMode, setThemeMode] = useState<ThemeMode>('light');
+  const [themeMode, setThemeMode] = useState<ThemeMode>(() => {
+    const saved = loadFromSession();
+    return saved?.themeMode || 'light';
+  });
   const theme = THEME[themeMode];
 
-  const [appTitle, setAppTitle] = useState('D-BUGGER');
-
-  const [topNav, setTopNav] = useState<NavItem[]>([
-    { id: uid('nav'), label: '협업보호' },
-    { id: uid('nav'), label: '불법접근' },
-    { id: uid('nav'), label: '랜섬웨어' },
-    { id: uid('nav'), label: '백업' },
-  ]);
-  const [activeTopNavId, setActiveTopNavId] = useState<string | null>(null);
-
-  const [sidebarMode, setSidebarMode] = useState<SidebarMode>('mixed');
-  const [sidebarTitle, setSidebarTitle] = useState('Sidebar');
-
-  const [sideItems, setSideItems] = useState<SideItem[]>([
-    {
-      id: uid('side'),
-      label: '폴더1',
-      children: [
-        { id: uid('side'), label: '하위1' },
-        { id: uid('side'), label: '하위2' },
-      ],
-    },
-    { id: uid('side'), label: '단일 메뉴' },
-    {
-      id: uid('side'),
-      label: '폴더2',
-      children: [{ id: uid('side'), label: '하위1' }],
-    },
-  ]);
-
-  const [activeSideId, setActiveSideId] = useState<string | null>(null);
-
-  // ----- Content State -----
-  const [listMenu, setListMenu] = useState('');
-  const [listSubMenu, setListSubMenu] = useState('');
-  const [listTitle, setListTitle] = useState('콘텐츠 리스트');
-  const [listSubtitle, setListSubtitle] = useState('서브타이틀 설명 문구');
-  const [menuItems, setMenuItems] = useState(['필터', '정렬']);
-  const [extraButtons, setExtraButtons] = useState<ExtraButton[]>([{ id: uid('btn'), label: '추가하기', variant: 'add' }]);
-  const [showOverlay, setShowOverlay] = useState(false);
-  const [tableMode, setTableMode] = useState<TableMode>('simple');
-
-  // ✅ 서치 필터 상태
-  const [searchFilter, setSearchFilter] = useState<SearchFilterConfig>({
-    enabled: true,
-    searchType: 'all',
-    searchKeyword: '',
-    searchOptions: [
-      { value: 'all', label: '전체' },
-      { value: 'name', label: '이름' },
-      { value: 'status', label: '상태' },
-    ],
+  const [appTitle, setAppTitle] = useState(() => {
+    const saved = loadFromSession();
+    return saved?.appTitle || 'D-BUGGER';
   });
 
-  // ✅ 안전한 초기화: columns 먼저 생성
+  const [topNav, setTopNav] = useState<NavItem[]>(() => {
+    const saved = loadFromSession();
+    return saved?.topNav || [
+      { id: uid('nav'), label: '협업보호' },
+      { id: uid('nav'), label: '불법접근' },
+      { id: uid('nav'), label: '랜섬웨어' },
+      { id: uid('nav'), label: '백업' },
+    ];
+  });
+  const [activeTopNavId, setActiveTopNavId] = useState<string | null>(() => {
+    const saved = loadFromSession();
+    return saved?.activeTopNavId || null;
+  });
+
+  const [sidebarMode, setSidebarMode] = useState<SidebarMode>(() => {
+    const saved = loadFromSession();
+    return saved?.sidebarMode || 'mixed';
+  });
+  const [sidebarTitle, setSidebarTitle] = useState(() => {
+    const saved = loadFromSession();
+    return saved?.sidebarTitle || 'Sidebar';
+  });
+
+  const [sideItems, setSideItems] = useState<SideItem[]>(() => {
+    const saved = loadFromSession();
+    return saved?.sideItems || [
+      {
+        id: uid('side'),
+        label: '폴더1',
+        children: [
+          { id: uid('side'), label: '하위1' },
+          { id: uid('side'), label: '하위2' },
+        ],
+      },
+      { id: uid('side'), label: '단일 메뉴' },
+      {
+        id: uid('side'),
+        label: '폴더2',
+        children: [{ id: uid('side'), label: '하위1' }],
+      },
+    ];
+  });
+
+  const [activeSideId, setActiveSideId] = useState<string | null>(() => {
+    const saved = loadFromSession();
+    return saved?.activeSideId || null;
+  });
+
+  // ----- Content State -----
+  const [listMenu, setListMenu] = useState(() => {
+    const saved = loadFromSession();
+    return saved?.listMenu || '';
+  });
+  const [listSubMenu, setListSubMenu] = useState(() => {
+    const saved = loadFromSession();
+    return saved?.listSubMenu || '';
+  });
+  const [listTitle, setListTitle] = useState(() => {
+    const saved = loadFromSession();
+    return saved?.listTitle || '콘텐츠 리스트';
+  });
+  const [listSubtitle, setListSubtitle] = useState(() => {
+    const saved = loadFromSession();
+    return saved?.listSubtitle || '서브타이틀 설명 문구';
+  });
+  const [menuItems, setMenuItems] = useState(() => {
+    const saved = loadFromSession();
+    return saved?.menuItems || ['필터', '정렬'];
+  });
+  const [extraButtons, setExtraButtons] = useState<ExtraButton[]>(() => {
+    const saved = loadFromSession();
+    return saved?.extraButtons || [{ id: uid('btn'), label: '추가하기', variant: 'add' }];
+  });
+  const [showOverlay, setShowOverlay] = useState(() => {
+    const saved = loadFromSession();
+    return saved?.showOverlay || false;
+  });
+  const [tableMode, setTableMode] = useState<TableMode>(() => {
+    const saved = loadFromSession();
+    return saved?.tableMode || 'simple';
+  });
+
+  const [searchFilter, setSearchFilter] = useState<SearchFilterConfig>(() => {
+    const saved = loadFromSession();
+    return saved?.searchFilter || {
+      enabled: true,
+      searchType: 'all',
+      searchKeyword: '',
+      searchOptions: [
+        { value: 'all', label: '전체' },
+        { value: 'name', label: '이름' },
+        { value: 'status', label: '상태' },
+      ],
+    };
+  });
+
   const [columns, setColumns] = useState<TableColumn[]>(() => {
-    const col1 = { id: uid('col'), header: '이름', hasSwitch: false };
-    const col2 = { id: uid('col'), header: '상태', hasSwitch: true };
-    const col3 = { id: uid('col'), header: '날짜', hasSwitch: false };
+    const saved = loadFromSession();
+    if (saved?.columns) return saved.columns;
+    const col1 = { id: uid('col'), header: '이름', hasSwitch: false, cellType: 'text' as const };
+    const col2 = { id: uid('col'), header: '상태', hasSwitch: true, cellType: 'switch' as const };
+    const col3 = { id: uid('col'), header: '접근권한', hasSwitch: false, cellType: 'status' as const };
     return [col1, col2, col3];
   });
 
-  // ✅ 안전한 초기화: rows는 columns를 참조
   const [rows, setRows] = useState<TableRow[]>(() => {
-    if (columns.length < 3) return [];
+    const saved = loadFromSession();
+    if (saved?.rows && saved?.columns) {
+      return saved.rows;
+    }
+    
+    const cols = saved?.columns || [];
+    if (cols.length < 3) {
+      const defaultCols = [
+        { id: uid('col'), header: '이름', hasSwitch: false, cellType: 'text' as const },
+        { id: uid('col'), header: '상태', hasSwitch: true, cellType: 'switch' as const },
+        { id: uid('col'), header: '접근권한', hasSwitch: false, cellType: 'status' as const },
+      ];
+      return [
+        {
+          id: uid('row'),
+          cells: {
+            [defaultCols[0].id]: '항목1',
+            [defaultCols[1].id]: true,
+            [defaultCols[2].id]: '허용',
+          },
+        },
+        {
+          id: uid('row'),
+          cells: {
+            [defaultCols[0].id]: '항목2',
+            [defaultCols[1].id]: false,
+            [defaultCols[2].id]: '차단',
+          },
+        },
+        {
+          id: uid('row'),
+          cells: {
+            [defaultCols[0].id]: '항목3',
+            [defaultCols[1].id]: true,
+            [defaultCols[2].id]: '허용',
+          },
+        },
+      ];
+    }
+    
     return [
       {
         id: uid('row'),
         cells: {
-          [columns[0].id]: '항목1',
-          [columns[1].id]: true,
-          [columns[2].id]: '2025.01.19',
+          [cols[0].id]: '항목1',
+          [cols[1].id]: true,
+          [cols[2].id]: '허용',
         },
       },
       {
         id: uid('row'),
         cells: {
-          [columns[0].id]: '항목2',
-          [columns[1].id]: false,
-          [columns[2].id]: '2025.01.18',
+          [cols[0].id]: '항목2',
+          [cols[1].id]: false,
+          [cols[2].id]: '차단',
         },
       },
       {
         id: uid('row'),
         cells: {
-          [columns[0].id]: '항목3',
-          [columns[1].id]: true,
-          [columns[2].id]: '2025.01.17',
+          [cols[0].id]: '항목3',
+          [cols[1].id]: true,
+          [cols[2].id]: '허용',
         },
       },
     ];
   });
 
   // ----- Approval State -----
-  const [approvalTitle, setApprovalTitle] = useState('승인 요청서');
-  const [approvalSubtitle, setApprovalSubtitle] = useState('필요한 정보를 입력하고 승인을 요청해주세요.');
-  const [formFields, setFormFields] = useState<FormField[]>([
-    {
-      id: uid('field'),
-      type: 'dropdown',
-      label: '승인자',
-      required: true,
-      width: 'full',
-      options: [
-        { id: uid('opt'), label: '홍길동 (부서장)' },
-        { id: uid('opt'), label: '김철수 (대표)' },
-      ],
-    },
-    {
-      id: uid('field'),
-      type: 'dropdown',
-      label: '참조자',
-      required: true,
-      width: 'full',
-      options: [
-        { id: uid('opt'), label: '이영희 (팀장)' },
-        { id: uid('opt'), label: '박민수 (과장)' },
-      ],
-    },
-    {
-      id: uid('field'),
-      type: 'input',
-      label: '제목',
-      placeholder: '승인 요청 제목을 입력하세요',
-      defaultValue: '프로그램 실행 허용 요청',
-      required: true,
-      width: 'full',
-    },
-    {
-      id: uid('field'),
-      type: 'input',
-      label: '사유',
-      placeholder: '승인 요청 사유를 입력하세요',
-      defaultValue: '업무상 필요한 프로그램이므로 실행 허용을 요청드립니다.',
-      required: true,
-      width: 'full',
-    },
-  ]);
+  const [approvalTitle, setApprovalTitle] = useState(() => {
+    const saved = loadFromSession();
+    return saved?.approvalTitle || '승인 요청서';
+  });
+  const [approvalSubtitle, setApprovalSubtitle] = useState(() => {
+    const saved = loadFromSession();
+    return saved?.approvalSubtitle || '필요한 정보를 입력하고 승인을 요청해주세요.';
+  });
+  const [formFields, setFormFields] = useState<FormField[]>(() => {
+    const saved = loadFromSession();
+    return saved?.formFields || [
+      {
+        id: uid('field'),
+        type: 'dropdown',
+        label: '승인자',
+        required: true,
+        width: 'full',
+        options: [
+          { id: uid('opt'), label: '홍길동 (부서장)' },
+          { id: uid('opt'), label: '김철수 (대표)' },
+        ],
+      },
+      {
+        id: uid('field'),
+        type: 'dropdown',
+        label: '참조자',
+        required: true,
+        width: 'full',
+        options: [
+          { id: uid('opt'), label: '이영희 (팀장)' },
+          { id: uid('opt'), label: '박민수 (과장)' },
+        ],
+      },
+      {
+        id: uid('field'),
+        type: 'input',
+        label: '제목',
+        placeholder: '승인 요청 제목을 입력하세요',
+        defaultValue: '프로그램 실행 허용 요청',
+        required: true,
+        width: 'full',
+      },
+      {
+        id: uid('field'),
+        type: 'input',
+        label: '사유',
+        placeholder: '승인 요청 사유를 입력하세요',
+        defaultValue: '업무상 필요한 프로그램이므로 실행 허용을 요청드립니다.',
+        required: true,
+        width: 'full',
+      },
+    ];
+  });
 
   // ----- Preview Scale -----
   const [previewScale, setPreviewScale] = useState(0.75);
@@ -228,6 +361,47 @@ export default function App() {
       window.removeEventListener('resize', calc);
     };
   }, []);
+
+  // ----- Auto Save to Session -----
+  useEffect(() => {
+    const state = {
+      tab,
+      trayType,
+      trayHeaderText,
+      trayTitle,
+      trayMessage,
+      trayButtonText,
+      themeMode,
+      appTitle,
+      topNav,
+      activeTopNavId,
+      sidebarMode,
+      sidebarTitle,
+      sideItems,
+      activeSideId,
+      listMenu,
+      listSubMenu,
+      listTitle,
+      listSubtitle,
+      menuItems,
+      extraButtons,
+      showOverlay,
+      tableMode,
+      searchFilter,
+      columns,
+      rows,
+      approvalTitle,
+      approvalSubtitle,
+      formFields,
+    };
+    saveToSession(state);
+  }, [
+    tab, trayType, trayHeaderText, trayTitle, trayMessage, trayButtonText,
+    themeMode, appTitle, topNav, activeTopNavId, sidebarMode, sidebarTitle,
+    sideItems, activeSideId, listMenu, listSubMenu, listTitle, listSubtitle,
+    menuItems, extraButtons, showOverlay, tableMode, searchFilter, columns,
+    rows, approvalTitle, approvalSubtitle, formFields
+  ]);
 
   return (
     <div className="min-h-screen bg-[#0b1220] text-white">
