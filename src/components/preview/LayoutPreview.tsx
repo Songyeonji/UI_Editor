@@ -52,7 +52,6 @@ export const LayoutPreview: React.FC<LayoutPreviewProps> = ({
         />
       );
     }
-
     if (sidebarMode === 'flat') {
       const flatItems: SideItem[] = [];
       for (const it of sideItems) {
@@ -73,10 +72,9 @@ export const LayoutPreview: React.FC<LayoutPreviewProps> = ({
                 onClick={() => onSideClick(it.id)}
                 className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-[13px] font-extrabold transition"
                 style={{
-                  color: isActive ? t.muted : t.text,
-                  backgroundColor: isActive ? `${t.muted}22` : 'transparent',
+                  color: isActive ? accent : t.text,
+                  backgroundColor: isActive ? `${accent}22` : 'transparent',
                 }}
-
                 onMouseEnter={(e) => {
                   if (!isActive) e.currentTarget.style.backgroundColor = t.hover;
                 }}
@@ -110,7 +108,7 @@ export const LayoutPreview: React.FC<LayoutPreviewProps> = ({
               <SidebarTree
                 key={it.id}
                 items={[it]}
-                accent={accent}  // t.muted가 아닌 accent로 통일
+                accent={accent}
                 textColor={t.text}
                 hoverBg={t.hover}
                 borderColor={t.border}
@@ -129,8 +127,8 @@ export const LayoutPreview: React.FC<LayoutPreviewProps> = ({
               onClick={() => onSideClick(it.id)}
               className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-[13px] font-extrabold transition"
               style={{
-                color: isActive ? accent : t.text,
-                backgroundColor: isActive ? `${accent}22` : 'transparent',
+                color: isActive ? t.muted : t.text,
+                backgroundColor: isActive ? `${t.muted}22` : 'transparent',
               }}
               onMouseEnter={(e) => {
                 if (!isActive) e.currentTarget.style.backgroundColor = t.hover;
