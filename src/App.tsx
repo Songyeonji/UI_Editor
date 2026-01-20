@@ -31,6 +31,7 @@ import type {
   UploaderType,
   DocumentFile,
   ProgramFile,
+  CheckboxOption,
 } from './types';
 
 type ModalSize = 'sm' | 'md' | 'lg' | 'xl' | '2xl';
@@ -179,7 +180,9 @@ export default function App() {
     { id: uid('field'), type: 'input', label: '제목', placeholder: '승인 요청 제목을 입력하세요', defaultValue: '프로그램 실행 허용 요청', required: true, width: 'full' },
     { id: uid('field'), type: 'input', label: '사유', placeholder: '승인 요청 사유를 입력하세요', defaultValue: '업무상 필요한 프로그램이므로 실행 허용을 요청드립니다.', required: true, width: 'full' },
   ]);
-
+  const [checkboxOption, setCheckboxOption] = useState<CheckboxOption>(() =>
+    loadFromSession()?.checkboxOption || { id: uid('checkbox'), label: '개인정보 수집 및 이용에 동의합니다', checked: true }
+  );
   const [uploaderType, setUploaderType] = useState<UploaderType>(() => loadFromSession()?.uploaderType || 'none');
   const [documentFiles, setDocumentFiles] = useState<DocumentFile[]>(() => loadFromSession()?.documentFiles || []);
   const [programFiles, setProgramFiles] = useState<ProgramFile[]>(() => loadFromSession()?.programFiles || []);
@@ -236,7 +239,7 @@ export default function App() {
       showContentPagination, contentCurrentPage, contentTotalPages, showContentEmptyState, contentEmptyStateMessage,
       approvalTitle, approvalSubtitle, formFields, uploaderType, documentFiles, programFiles, showPagination, currentPage, totalPages, showEmptyState, emptyStateMessage,
       modalType, confirmType, modalTitle, modalMessage, confirmButtonText, cancelButtonText, showCancelButton, showModalEmptyState, modalEmptyStateMessage,
-      showTable, tableData, modalHeader, showModalHeader, modalSize, modalHeight, showModalPagination, modalCurrentPage, modalTotalPages
+      showTable, tableData, modalHeader, showModalHeader, modalSize, modalHeight, showModalPagination, modalCurrentPage, modalTotalPages, checkboxOption
     };
     saveToSession(state);
   }, [
@@ -246,7 +249,7 @@ export default function App() {
     showContentPagination, contentCurrentPage, contentTotalPages, showContentEmptyState, contentEmptyStateMessage,
     approvalTitle, approvalSubtitle, formFields, uploaderType, documentFiles, programFiles, showPagination, currentPage, totalPages, showEmptyState, emptyStateMessage,
     modalType, confirmType, modalTitle, modalMessage, confirmButtonText, cancelButtonText, showCancelButton, showModalEmptyState, modalEmptyStateMessage,
-    showTable, tableData, modalHeader, showModalHeader, modalSize, modalHeight, showModalPagination, modalCurrentPage, modalTotalPages
+    showTable, tableData, modalHeader, showModalHeader, modalSize, modalHeight, showModalPagination, modalCurrentPage, modalTotalPages,  checkboxOption
   ]);
 
   return (
@@ -324,7 +327,7 @@ export default function App() {
               <div className="grid gap-4">
                 <div className="text-[13px] font-semibold leading-relaxed text-white/75">아래는 "승인 양식"을 500×650 고정 프레임으로 미리보는 화면이야.</div>
                 <div ref={previewWrapRef} className="relative h-[650px] w-[500px] max-w-full overflow-hidden rounded-2xl border border-white/15 bg-white/5">
-                  <ApprovalPreview theme={theme} approvalTitle={approvalTitle} approvalSubtitle={approvalSubtitle} formFields={formFields} uploaderType={uploaderType} documentFiles={documentFiles} programFiles={programFiles} showPagination={showPagination} showEmptyState={showEmptyState} emptyStateMessage={emptyStateMessage} currentPage={currentPage} totalPages={totalPages} previewScale={previewScale} />
+                  <ApprovalPreview theme={theme} approvalTitle={approvalTitle} approvalSubtitle={approvalSubtitle} formFields={formFields} uploaderType={uploaderType} documentFiles={documentFiles} programFiles={programFiles} showPagination={showPagination} showEmptyState={showEmptyState} emptyStateMessage={emptyStateMessage} currentPage={currentPage} totalPages={totalPages} previewScale={previewScale} checkboxOption={checkboxOption} />
                   <div className="absolute bottom-3 right-3 rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-[12px] font-bold text-white/70">500×650 · scale {Math.round(previewScale * 100)}%</div>
                 </div>
               </div>
@@ -370,7 +373,8 @@ export default function App() {
               setFooterNotice={setFooterNotice}
             />}
             {tab === 'content' && <ContentEditor listMenu={listMenu} setListMenu={setListMenu} listSubMenu={listSubMenu} setListSubMenu={setListSubMenu} listTitle={listTitle} setListTitle={setListTitle} listSubtitle={listSubtitle} setListSubtitle={setListSubtitle} menuItems={menuItems} setMenuItems={setMenuItems} extraButtons={extraButtons} setExtraButtons={setExtraButtons} tableMode={tableMode} setTableMode={setTableMode} columns={columns} setColumns={setColumns} rows={rows} setRows={setRows} showOverlay={showOverlay} setShowOverlay={setShowOverlay} searchFilter={searchFilter} setSearchFilter={setSearchFilter} showContentPagination={showContentPagination} setShowContentPagination={setShowContentPagination} showContentEmptyState={showContentEmptyState} setShowContentEmptyState={setShowContentEmptyState} contentEmptyStateMessage={contentEmptyStateMessage} setContentEmptyStateMessage={setContentEmptyStateMessage} contentCurrentPage={contentCurrentPage} setContentCurrentPage={setContentCurrentPage} contentTotalPages={contentTotalPages} setContentTotalPages={setContentTotalPages} />}
-            {tab === 'approval' && <ApprovalEditor approvalTitle={approvalTitle} setApprovalTitle={setApprovalTitle} approvalSubtitle={approvalSubtitle} setApprovalSubtitle={setApprovalSubtitle} formFields={formFields} setFormFields={setFormFields} uploaderType={uploaderType} setUploaderType={setUploaderType} documentFiles={documentFiles} setDocumentFiles={setDocumentFiles} programFiles={programFiles} setProgramFiles={setProgramFiles} showPagination={showPagination} setShowPagination={setShowPagination} showEmptyState={showEmptyState} setShowEmptyState={setShowEmptyState} emptyStateMessage={emptyStateMessage} setEmptyStateMessage={setEmptyStateMessage} currentPage={currentPage} setCurrentPage={setCurrentPage} totalPages={totalPages} setTotalPages={setTotalPages} />}
+            {tab === 'approval' && <ApprovalEditor approvalTitle={approvalTitle} setApprovalTitle={setApprovalTitle} approvalSubtitle={approvalSubtitle} setApprovalSubtitle={setApprovalSubtitle} formFields={formFields} setFormFields={setFormFields} uploaderType={uploaderType} setUploaderType={setUploaderType} documentFiles={documentFiles} setDocumentFiles={setDocumentFiles} programFiles={programFiles} setProgramFiles={setProgramFiles} showPagination={showPagination} setShowPagination={setShowPagination} showEmptyState={showEmptyState} setShowEmptyState={setShowEmptyState} emptyStateMessage={emptyStateMessage} setEmptyStateMessage={setEmptyStateMessage} currentPage={currentPage} setCurrentPage={setCurrentPage} totalPages={totalPages} setTotalPages={setTotalPages} checkboxOption={checkboxOption}
+              setCheckboxOption={setCheckboxOption} />}
             {tab === 'modal' && <ModalEditor modalType={modalType} setModalType={setModalType} confirmType={confirmType} setConfirmType={setConfirmType} modalTitle={modalTitle} setModalTitle={setModalTitle} modalMessage={modalMessage} setModalMessage={setModalMessage} confirmButtonText={confirmButtonText} setConfirmButtonText={setConfirmButtonText} cancelButtonText={cancelButtonText} setCancelButtonText={setCancelButtonText} showCancelButton={showCancelButton} setShowCancelButton={setShowCancelButton} showEmptyState={showModalEmptyState} setShowEmptyState={setShowModalEmptyState} emptyStateMessage={modalEmptyStateMessage} setEmptyStateMessage={setModalEmptyStateMessage} showTable={showTable} setShowTable={setShowTable} tableData={tableData} setTableData={setTableData} modalHeader={modalHeader} setModalHeader={setModalHeader} showModalHeader={showModalHeader} setShowModalHeader={setShowModalHeader} modalSize={modalSize} setModalSize={setModalSize} modalHeight={modalHeight} setModalHeight={setModalHeight} showPagination={showModalPagination} setShowPagination={setShowModalPagination} currentPage={modalCurrentPage} setCurrentPage={setModalCurrentPage} totalPages={modalTotalPages} setTotalPages={setModalTotalPages} />}
           </div>
         </aside>

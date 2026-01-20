@@ -5,7 +5,7 @@ import { Pagination } from '../ui/Pagination';
 import { EmptyState } from '../ui/EmptyState';
 import { DocumentUploader, type DocumentFile } from '../ui/DocumentUploader';
 import { ProgramUploader, type ProgramFile } from '../ui/ProgramUploader';
-import type { ThemeColors, FormField, UploaderType } from '../../types';
+import type { ThemeColors, FormField, UploaderType, CheckboxOption } from '../../types';
 
 interface ApprovalPreviewProps {
   theme: ThemeColors;
@@ -21,6 +21,7 @@ interface ApprovalPreviewProps {
   currentPage: number;
   totalPages: number;
   previewScale: number;
+  checkboxOption: CheckboxOption;
 }
 
 export const ApprovalPreview: React.FC<ApprovalPreviewProps> = ({
@@ -37,6 +38,7 @@ export const ApprovalPreview: React.FC<ApprovalPreviewProps> = ({
   currentPage,
   totalPages,
   previewScale,
+  checkboxOption,
 }) => {
   const [openDropdownId, setOpenDropdownId] = React.useState<string | null>(null);
 
@@ -137,7 +139,19 @@ export const ApprovalPreview: React.FC<ApprovalPreviewProps> = ({
                   )}
                 </div>
               ))}
-
+              {/* 체크박스 옵션 */}
+              {checkboxOption.checked && (
+                <div className="flex items-center gap-2 px-1">
+                  <input
+                    type="checkbox"
+                    className="rounded"
+                    readOnly
+                  />
+                  <span className="text-[12px] font-semibold" style={{ color: t.text }}>
+                    {checkboxOption.label}
+                  </span>
+                </div>
+              )}
               {/* 파일 업로더 - 사유 필드 밑에 위치 */}
               {uploaderType === 'document' && (
                 <div>
@@ -146,8 +160,8 @@ export const ApprovalPreview: React.FC<ApprovalPreviewProps> = ({
                   </label>
                   <DocumentUploader
                     documents={documentFiles}
-                    onAdd={() => {}}
-                    onRemove={() => {}}
+                    onAdd={() => { }}
+                    onRemove={() => { }}
                     disabled={true}
                   />
                 </div>
@@ -160,8 +174,8 @@ export const ApprovalPreview: React.FC<ApprovalPreviewProps> = ({
                   </label>
                   <ProgramUploader
                     programs={programFiles}
-                    onAdd={() => {}}
-                    onRemove={() => {}}
+                    onAdd={() => { }}
+                    onRemove={() => { }}
                     disabled={true}
                   />
                 </div>

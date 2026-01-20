@@ -22,7 +22,11 @@ export interface SideItem {
   label: string;
   children?: SideItem[];
 }
-
+export interface CheckboxOption {
+  id: string;
+  label: string;
+  checked: boolean;
+}
 export interface TableColumn {
   id: string;
   header: string;
