@@ -322,10 +322,10 @@ export default function App() {
             )}
             {tab === 'approval' && (
               <div className="grid gap-4">
-                <div className="text-[13px] font-semibold leading-relaxed text-white/75">아래는 "승인 양식"을 500×600 고정 프레임으로 미리보는 화면이야.</div>
-                <div ref={previewWrapRef} className="relative h-[700px] w-[600px] max-w-full overflow-hidden rounded-2xl border border-white/15 bg-white/5">
+                <div className="text-[13px] font-semibold leading-relaxed text-white/75">아래는 "승인 양식"을 500×650 고정 프레임으로 미리보는 화면이야.</div>
+                <div ref={previewWrapRef} className="relative h-[650px] w-[500px] max-w-full overflow-hidden rounded-2xl border border-white/15 bg-white/5">
                   <ApprovalPreview theme={theme} approvalTitle={approvalTitle} approvalSubtitle={approvalSubtitle} formFields={formFields} uploaderType={uploaderType} documentFiles={documentFiles} programFiles={programFiles} showPagination={showPagination} showEmptyState={showEmptyState} emptyStateMessage={emptyStateMessage} currentPage={currentPage} totalPages={totalPages} previewScale={previewScale} />
-                  <div className="absolute bottom-3 right-3 rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-[12px] font-bold text-white/70">500×600 · scale {Math.round(previewScale * 100)}%</div>
+                  <div className="absolute bottom-3 right-3 rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-[12px] font-bold text-white/70">500×650 · scale {Math.round(previewScale * 100)}%</div>
                 </div>
               </div>
             )}

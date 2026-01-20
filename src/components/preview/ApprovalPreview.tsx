@@ -45,7 +45,7 @@ export const ApprovalPreview: React.FC<ApprovalPreviewProps> = ({
       className="absolute left-1/2 top-1/2"
       style={{
         width: 500,
-        height: 600,
+        height: 650,
         transform: `translate(-50%, -50%) scale(${previewScale})`,
         transformOrigin: 'center',
         fontFamily: 'Pretendard',
@@ -65,7 +65,7 @@ export const ApprovalPreview: React.FC<ApprovalPreviewProps> = ({
         </div>
 
         {/* 본문 영역 */}
-        <div className="h-[calc(100%-180px)] overflow-y-auto">
+        <div className="h-[calc(100%-120px)] overflow-y-auto">
           {showEmptyState ? (
             <EmptyState message={emptyStateMessage} iconSize="medium" className="py-12" />
           ) : (
@@ -170,17 +170,6 @@ export const ApprovalPreview: React.FC<ApprovalPreviewProps> = ({
           )}
         </div>
 
-        {/* 페이지네이션 */}
-        {showPagination && !showEmptyState && (
-          <div className="absolute bottom-14 left-0 right-0" style={{ borderTop: `1px solid ${t.border}`, backgroundColor: t.bg }}>
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={() => {}}
-              size="small"
-            />
-          </div>
-        )}
 
         {/* 승인 버튼 영역 */}
         <div className="absolute bottom-4 right-4 flex gap-2">

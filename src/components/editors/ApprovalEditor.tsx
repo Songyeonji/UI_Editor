@@ -172,68 +172,6 @@ export const ApprovalEditor: React.FC<ApprovalEditorProps> = ({
         </label>
       </div>
 
-      {/* 옵션 */}
-      <div className="grid gap-2">
-        <div className="text-[12px] font-extrabold text-white/85">옵션</div>
-
-        <label className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            checked={showEmptyState}
-            onChange={(e) => {
-              setShowEmptyState(e.target.checked);
-            }}
-          />
-          <span className="text-[11px] font-semibold text-white/70">EmptyState 표시</span>
-        </label>
-
-        {showEmptyState && (
-          <label className="grid gap-1">
-            <span className="text-[11px] font-semibold text-white/70">EmptyState 메시지</span>
-            <input
-              className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
-              value={emptyStateMessage}
-              onChange={(e) => setEmptyStateMessage(e.target.value)}
-              placeholder="데이터가 없습니다."
-            />
-          </label>
-        )}
-
-        <label className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            checked={showPagination}
-            onChange={(e) => setShowPagination(e.target.checked)}
-          />
-          <span className="text-[11px] font-semibold text-white/70">Pagination 표시</span>
-        </label>
-
-        {showPagination && (
-          <div className="grid grid-cols-2 gap-2">
-            <label className="grid gap-1">
-              <span className="text-[11px] font-semibold text-white/70">현재 페이지</span>
-              <input
-                type="number"
-                min="1"
-                max={totalPages}
-                className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
-                value={currentPage}
-                onChange={(e) => setCurrentPage(Math.max(1, Math.min(totalPages, Number(e.target.value))))}
-              />
-            </label>
-            <label className="grid gap-1">
-              <span className="text-[11px] font-semibold text-white/70">전체 페이지</span>
-              <input
-                type="number"
-                min="1"
-                className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
-                value={totalPages}
-                onChange={(e) => setTotalPages(Math.max(1, Number(e.target.value)))}
-              />
-            </label>
-          </div>
-        )}
-      </div>
 
       {/* 파일 업로더 선택 */}
       {!showEmptyState && (
