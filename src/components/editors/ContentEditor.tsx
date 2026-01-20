@@ -27,6 +27,16 @@ interface ContentEditorProps {
   setShowOverlay: (show: boolean) => void;
   searchFilter: SearchFilterConfig;
   setSearchFilter: React.Dispatch<React.SetStateAction<SearchFilterConfig>>;
+  showContentPagination: boolean;
+  setShowContentPagination: (show: boolean) => void;
+  showContentEmptyState: boolean;
+  setShowContentEmptyState: (show: boolean) => void;
+  contentEmptyStateMessage: string;
+  setContentEmptyStateMessage: (message: string) => void;
+  contentCurrentPage: number;
+  setContentCurrentPage: (page: number) => void;
+  contentTotalPages: number;
+  setContentTotalPages: (pages: number) => void;
 }
 
 const buttonVariants: { value: ButtonVariant; label: string }[] = [
@@ -63,6 +73,16 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
   setShowOverlay,
   searchFilter,
   setSearchFilter,
+  showContentPagination,
+  setShowContentPagination,
+  showContentEmptyState,
+  setShowContentEmptyState,
+  contentEmptyStateMessage,
+  setContentEmptyStateMessage,
+  contentCurrentPage,
+  setContentCurrentPage,
+  contentTotalPages,
+  setContentTotalPages,
 }) => {
   const addMenu = () => setMenuItems((p) => [...p, `메뉴${p.length + 1}`]);
   const removeMenu = (idx: number) => setMenuItems((p) => p.filter((_, i) => i !== idx));
@@ -128,7 +148,6 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
     );
   };
 
-  // 서치 필터 옵션 추가/삭제/수정
   const addSearchOption = () => {
     setSearchFilter((prev) => ({
       ...prev,
@@ -169,6 +188,62 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
           />
           <span className="text-[13px] font-semibold text-white/85">서치 필터 표시</span>
         </label>
+
+        <label className="flex items-center gap-2 rounded-2xl border border-white/15 bg-white/5 p-3">
+          <input
+            type="checkbox"
+            checked={showContentEmptyState}
+            onChange={(e) => setShowContentEmptyState(e.target.checked)}
+          />
+          <span className="text-[13px] font-semibold text-white/85">EmptyState 표시</span>
+        </label>
+
+        {showContentEmptyState && (
+          <label className="grid gap-1">
+            <span className="text-[11px] font-semibold text-white/70">EmptyState 메시지</span>
+            <input
+              className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
+              value={contentEmptyStateMessage}
+              onChange={(e) => setContentEmptyStateMessage(e.target.value)}
+              placeholder="데이터가 없습니다."
+            />
+          </label>
+        )}
+
+        <label className="flex items-center gap-2 rounded-2xl border border-white/15 bg-white/5 p-3">
+          <input
+            type="checkbox"
+            checked={showContentPagination}
+            onChange={(e) => setShowContentPagination(e.target.checked)}
+          />
+          <span className="text-[13px] font-semibold text-white/85">Pagination 표시</span>
+        </label>
+
+        {showContentPagination && (
+          <div className="grid grid-cols-2 gap-2">
+            <label className="grid gap-1">
+              <span className="text-[11px] font-semibold text-white/70">현재 페이지</span>
+              <input
+                type="number"
+                min="1"
+                max={contentTotalPages}
+                className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
+                value={contentCurrentPage}
+                onChange={(e) => setContentCurrentPage(Math.max(1, Math.min(contentTotalPages, Number(e.target.value))))}
+              />
+            </label>
+            <label className="grid gap-1">
+              <span className="text-[11px] font-semibold text-white/70">전체 페이지</span>
+              <input
+                type="number"
+                min="1"
+                className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
+                value={contentTotalPages}
+                onChange={(e) => setContentTotalPages(Math.max(1, Number(e.target.value)))}
+              />
+            </label>
+          </div>
+        )}
       </div>
 
       {/* 서치 필터 설정 */}
@@ -208,275 +283,279 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
       )}
 
       {/* List Header */}
-      <div className="grid gap-2">
-        <div className="text-[12px] font-extrabold text-white/85">리스트 헤더 (PageContainer 스타일)</div>
-
-        <label className="grid gap-1">
-          <span className="text-[11px] font-semibold text-white/70">최상위 메뉴 (선택)</span>
-          <input
-            className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
-            placeholder="예: 대시보드"
-            value={listMenu}
-            onChange={(e) => setListMenu(e.target.value)}
-          />
-        </label>
-
-        <label className="grid gap-1">
-          <span className="text-[11px] font-semibold text-white/70">서브 메뉴 (선택)</span>
-          <input
-            className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
-            placeholder="예: 사용자 관리"
-            value={listSubMenu}
-            onChange={(e) => setListSubMenu(e.target.value)}
-          />
-        </label>
-
-        <label className="grid gap-1">
-          <span className="text-[11px] font-semibold text-white/70">타이틀</span>
-          <input
-            className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
-            value={listTitle}
-            onChange={(e) => setListTitle(e.target.value)}
-          />
-        </label>
-
-        <label className="grid gap-1">
-          <span className="text-[11px] font-semibold text-white/70">서브타이틀</span>
-          <input
-            className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
-            value={listSubtitle}
-            onChange={(e) => setListSubtitle(e.target.value)}
-          />
-        </label>
-
-        <div className="flex items-center justify-between">
-          <div className="text-[11px] font-semibold text-white/70">오른쪽 메뉴</div>
-          <button
-            type="button"
-            onClick={addMenu}
-            className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-[12px] font-extrabold transition hover:bg-white/10"
-          >
-            + 추가
-          </button>
-        </div>
-
+      {!showContentEmptyState && (
         <div className="grid gap-2">
-          {menuItems.map((menu, idx) => (
-            <div key={idx} className="flex items-center gap-2">
-              <input
-                className="flex-1 rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
-                value={menu}
-                onChange={(e) => renameMenu(idx, e.target.value)}
-              />
-              <button
-                type="button"
-                onClick={() => removeMenu(idx)}
-                className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-[12px] font-extrabold transition hover:bg-white/10"
-              >
-                -
-              </button>
-            </div>
-          ))}
-        </div>
+          <div className="text-[12px] font-extrabold text-white/85">리스트 헤더 (PageContainer 스타일)</div>
 
-        <div className="flex items-center justify-between">
-          <div className="text-[11px] font-semibold text-white/70">Extra 버튼</div>
-          <button
-            type="button"
-            onClick={addExtraButton}
-            className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-[12px] font-extrabold transition hover:bg-white/10"
-          >
-            + 추가
-          </button>
-        </div>
+          <label className="grid gap-1">
+            <span className="text-[11px] font-semibold text-white/70">최상위 메뉴 (선택)</span>
+            <input
+              className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
+              placeholder="예: 대시보드"
+              value={listMenu}
+              onChange={(e) => setListMenu(e.target.value)}
+            />
+          </label>
 
-        <div className="grid gap-2">
-          {extraButtons.map((btn) => (
-            <div key={btn.id} className="grid gap-2 rounded-2xl border border-white/15 bg-white/5 p-3">
-              <div className="flex items-center gap-2">
+          <label className="grid gap-1">
+            <span className="text-[11px] font-semibold text-white/70">서브 메뉴 (선택)</span>
+            <input
+              className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
+              placeholder="예: 사용자 관리"
+              value={listSubMenu}
+              onChange={(e) => setListSubMenu(e.target.value)}
+            />
+          </label>
+
+          <label className="grid gap-1">
+            <span className="text-[11px] font-semibold text-white/70">타이틀</span>
+            <input
+              className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
+              value={listTitle}
+              onChange={(e) => setListTitle(e.target.value)}
+            />
+          </label>
+
+          <label className="grid gap-1">
+            <span className="text-[11px] font-semibold text-white/70">서브타이틀</span>
+            <input
+              className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
+              value={listSubtitle}
+              onChange={(e) => setListSubtitle(e.target.value)}
+            />
+          </label>
+
+          <div className="flex items-center justify-between">
+            <div className="text-[11px] font-semibold text-white/70">오른쪽 메뉴</div>
+            <button
+              type="button"
+              onClick={addMenu}
+              className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-[12px] font-extrabold transition hover:bg-white/10"
+            >
+              + 추가
+            </button>
+          </div>
+
+          <div className="grid gap-2">
+            {menuItems.map((menu, idx) => (
+              <div key={idx} className="flex items-center gap-2">
                 <input
                   className="flex-1 rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
-                  value={btn.label}
-                  onChange={(e) => renameExtraButton(btn.id, e.target.value)}
+                  value={menu}
+                  onChange={(e) => renameMenu(idx, e.target.value)}
                 />
                 <button
                   type="button"
-                  onClick={() => removeExtraButton(btn.id)}
+                  onClick={() => removeMenu(idx)}
                   className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-[12px] font-extrabold transition hover:bg-white/10"
                 >
-                  삭제
+                  -
                 </button>
               </div>
+            ))}
+          </div>
 
-              <label className="grid gap-1">
-                <span className="text-[11px] font-semibold text-white/70">버튼 스타일</span>
-                <select
-                  className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
-                  value={btn.variant}
-                  onChange={(e) => changeButtonVariant(btn.id, e.target.value as ButtonVariant)}
-                >
-                  {buttonVariants.map((v) => (
-                    <option key={v.value} value={v.value}>
-                      {v.label}
-                    </option>
-                  ))}
-                </select>
-              </label>
-            </div>
-          ))}
+          <div className="flex items-center justify-between">
+            <div className="text-[11px] font-semibold text-white/70">Extra 버튼</div>
+            <button
+              type="button"
+              onClick={addExtraButton}
+              className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-[12px] font-extrabold transition hover:bg-white/10"
+            >
+              + 추가
+            </button>
+          </div>
+
+          <div className="grid gap-2">
+            {extraButtons.map((btn) => (
+              <div key={btn.id} className="grid gap-2 rounded-2xl border border-white/15 bg-white/5 p-3">
+                <div className="flex items-center gap-2">
+                  <input
+                    className="flex-1 rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
+                    value={btn.label}
+                    onChange={(e) => renameExtraButton(btn.id, e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeExtraButton(btn.id)}
+                    className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-[12px] font-extrabold transition hover:bg-white/10"
+                  >
+                    삭제
+                  </button>
+                </div>
+
+                <label className="grid gap-1">
+                  <span className="text-[11px] font-semibold text-white/70">버튼 스타일</span>
+                  <select
+                    className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
+                    value={btn.variant}
+                    onChange={(e) => changeButtonVariant(btn.id, e.target.value as ButtonVariant)}
+                  >
+                    {buttonVariants.map((v) => (
+                      <option key={v.value} value={v.value}>
+                        {v.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              </div>
+            ))}
+          </div>
         </div>
-      </div>
+      )}
 
       {/* Table */}
-      <div className="grid gap-2">
-        <div className="text-[12px] font-extrabold text-white/85">테이블</div>
-
-        <div className="grid grid-cols-2 gap-2">
-          <button
-            type="button"
-            onClick={() => setTableMode('simple')}
-            className={
-              'rounded-xl border px-3 py-2 text-[13px] font-extrabold transition ' +
-              (tableMode === 'simple' ? 'border-white/35 bg-white/10' : 'border-white/15 bg-white/5 hover:bg-white/10')
-            }
-          >
-            심플
-          </button>
-          <button
-            type="button"
-            onClick={() => setTableMode('checkable')}
-            className={
-              'rounded-xl border px-3 py-2 text-[13px] font-extrabold transition ' +
-              (tableMode === 'checkable' ? 'border-white/35 bg-white/10' : 'border-white/15 bg-white/5 hover:bg-white/10')
-            }
-          >
-            체크
-          </button>
-        </div>
-
-        <div className="flex items-center justify-between">
-          <div className="text-[11px] font-semibold text-white/70">컬럼 (열)</div>
-          <button
-            type="button"
-            onClick={addColumn}
-            className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-[12px] font-extrabold transition hover:bg-white/10"
-          >
-            + 추가
-          </button>
-        </div>
-
+      {!showContentEmptyState && (
         <div className="grid gap-2">
-          {columns.map((col) => (
-            <div key={col.id} className="grid gap-2 rounded-2xl border border-white/15 bg-white/5 p-3">
-              <div className="flex items-center gap-2">
-                <input
-                  className="flex-1 rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
-                  value={col.header}
-                  onChange={(e) => renameColumn(col.id, e.target.value)}
-                />
-                <button
-                  type="button"
-                  onClick={() => removeColumn(col.id)}
-                  className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-[12px] font-extrabold transition hover:bg-white/10"
-                >
-                  삭제
-                </button>
+          <div className="text-[12px] font-extrabold text-white/85">테이블</div>
+
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => setTableMode('simple')}
+              className={
+                'rounded-xl border px-3 py-2 text-[13px] font-extrabold transition ' +
+                (tableMode === 'simple' ? 'border-white/35 bg-white/10' : 'border-white/15 bg-white/5 hover:bg-white/10')
+              }
+            >
+              심플
+            </button>
+            <button
+              type="button"
+              onClick={() => setTableMode('checkable')}
+              className={
+                'rounded-xl border px-3 py-2 text-[13px] font-extrabold transition ' +
+                (tableMode === 'checkable' ? 'border-white/35 bg-white/10' : 'border-white/15 bg-white/5 hover:bg-white/10')
+              }
+            >
+              체크
+            </button>
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div className="text-[11px] font-semibold text-white/70">컬럼 (열)</div>
+            <button
+              type="button"
+              onClick={addColumn}
+              className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-[12px] font-extrabold transition hover:bg-white/10"
+            >
+              + 추가
+            </button>
+          </div>
+
+          <div className="grid gap-2">
+            {columns.map((col) => (
+              <div key={col.id} className="grid gap-2 rounded-2xl border border-white/15 bg-white/5 p-3">
+                <div className="flex items-center gap-2">
+                  <input
+                    className="flex-1 rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
+                    value={col.header}
+                    onChange={(e) => renameColumn(col.id, e.target.value)}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => removeColumn(col.id)}
+                    className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-[12px] font-extrabold transition hover:bg-white/10"
+                  >
+                    삭제
+                  </button>
+                </div>
+
+                <label className="grid gap-1">
+                  <span className="text-[11px] font-semibold text-white/70">셀 타입</span>
+                  <select
+                    className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
+                    value={col.cellType || 'text'}
+                    onChange={(e) => changeCellType(col.id, e.target.value as 'text' | 'switch' | 'status')}
+                  >
+                    <option value="text">텍스트</option>
+                    <option value="switch">스위치</option>
+                    <option value="status">상태 (허용/차단)</option>
+                  </select>
+                </label>
+                <label className="grid gap-1">
+                  <span className="text-[11px] font-semibold text-white/70">열 너비 (%, 빈 값 = 자동)</span>
+                  <input
+                    type="number"
+                    min="5"
+                    max="100"
+                    placeholder="자동"
+                    className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
+                    value={col.width ?? ''}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      changeColumnWidth(col.id, val === '' ? undefined : Number(val));
+                    }}
+                  />
+                </label>
               </div>
+            ))}
+          </div>
 
-              <label className="grid gap-1">
-                <span className="text-[11px] font-semibold text-white/70">셀 타입</span>
-                <select
-                  className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
-                  value={col.cellType || 'text'}
-                  onChange={(e) => changeCellType(col.id, e.target.value as 'text' | 'switch' | 'status')}
-                >
-                  <option value="text">텍스트</option>
-                  <option value="switch">스위치</option>
-                  <option value="status">상태 (허용/차단)</option>
-                </select>
-              </label>
-              <label className="grid gap-1">
-                <span className="text-[11px] font-semibold text-white/70">열 넓이 (%, 빈 값 = 자동)</span>
-                <input
-                  type="number"
-                  min="5"
-                  max="100"
-                  placeholder="자동"
-                  className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
-                  value={col.width ?? ''}
-                  onChange={(e) => {
-                    const val = e.target.value;
-                    changeColumnWidth(col.id, val === '' ? undefined : Number(val));
-                  }}
-                />
-              </label>
-            </div>
-          ))}
-        </div>
+          <div className="flex items-center justify-between">
+            <div className="text-[11px] font-semibold text-white/70">행 ({rows.length})</div>
+            <button
+              type="button"
+              onClick={addRow}
+              className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-[12px] font-extrabold transition hover:bg-white/10"
+            >
+              + 추가
+            </button>
+          </div>
 
-        <div className="flex items-center justify-between">
-          <div className="text-[11px] font-semibold text-white/70">행 ({rows.length})</div>
-          <button
-            type="button"
-            onClick={addRow}
-            className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-[12px] font-extrabold transition hover:bg-white/10"
-          >
-            + 추가
-          </button>
-        </div>
+          <div className="grid max-h-[400px] gap-2 overflow-y-auto">
+            {rows.map((row, rowIdx) => (
+              <div key={row.id} className="grid gap-2 rounded-2xl border border-white/15 bg-white/5 p-3">
+                <div className="flex items-center justify-between">
+                  <div className="text-[11px] font-semibold text-white/70">행 {rowIdx + 1}</div>
+                  <button
+                    type="button"
+                    onClick={() => removeRow(row.id)}
+                    className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-[12px] font-extrabold transition hover:bg-white/10"
+                  >
+                    삭제
+                  </button>
+                </div>
 
-        <div className="grid max-h-[400px] gap-2 overflow-y-auto">
-          {rows.map((row, rowIdx) => (
-            <div key={row.id} className="grid gap-2 rounded-2xl border border-white/15 bg-white/5 p-3">
-              <div className="flex items-center justify-between">
-                <div className="text-[11px] font-semibold text-white/70">행 {rowIdx + 1}</div>
-                <button
-                  type="button"
-                  onClick={() => removeRow(row.id)}
-                  className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-[12px] font-extrabold transition hover:bg-white/10"
-                >
-                  삭제
-                </button>
-              </div>
-
-              <div className="grid gap-2">
-                {columns.map((col) => (
-                  <div key={col.id}>
-                    <label className="grid gap-1">
-                      <span className="text-[11px] font-semibold text-white/70">{col.header}</span>
-                      {col.cellType === 'switch' ? (
-                        <label className="flex items-center gap-2">
+                <div className="grid gap-2">
+                  {columns.map((col) => (
+                    <div key={col.id}>
+                      <label className="grid gap-1">
+                        <span className="text-[11px] font-semibold text-white/70">{col.header}</span>
+                        {col.cellType === 'switch' ? (
+                          <label className="flex items-center gap-2">
+                            <input
+                              type="checkbox"
+                              checked={row.cells[col.id] as boolean}
+                              onChange={(e) => updateCellValue(row.id, col.id, e.target.checked)}
+                            />
+                            <span className="text-[11px] font-semibold text-white/60">{row.cells[col.id] ? 'ON' : 'OFF'}</span>
+                          </label>
+                        ) : col.cellType === 'status' ? (
+                          <select
+                            className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
+                            value={String(row.cells[col.id])}
+                            onChange={(e) => updateCellValue(row.id, col.id, e.target.value)}
+                          >
+                            <option value="허용">허용</option>
+                            <option value="차단">차단</option>
+                          </select>
+                        ) : (
                           <input
-                            type="checkbox"
-                            checked={row.cells[col.id] as boolean}
-                            onChange={(e) => updateCellValue(row.id, col.id, e.target.checked)}
+                            className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
+                            value={String(row.cells[col.id])}
+                            onChange={(e) => updateCellValue(row.id, col.id, e.target.value)}
                           />
-                          <span className="text-[11px] font-semibold text-white/60">{row.cells[col.id] ? 'ON' : 'OFF'}</span>
-                        </label>
-                      ) : col.cellType === 'status' ? (
-                        <select
-                          className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
-                          value={String(row.cells[col.id])}
-                          onChange={(e) => updateCellValue(row.id, col.id, e.target.value)}
-                        >
-                          <option value="허용">허용</option>
-                          <option value="차단">차단</option>
-                        </select>
-                      ) : (
-                        <input
-                          className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
-                          value={String(row.cells[col.id])}
-                          onChange={(e) => updateCellValue(row.id, col.id, e.target.value)}
-                        />
-                      )}
-                    </label>
-                  </div>
-                ))}
+                        )}
+                      </label>
+                    </div>
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };

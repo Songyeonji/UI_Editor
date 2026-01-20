@@ -1,7 +1,7 @@
 // components/editors/ApprovalEditor.tsx
 
 import React from 'react';
-import type { FormField, DropdownOption, FormFieldType, DropdownWidth } from '../../types';
+import type { FormField, DropdownOption, FormFieldType, DropdownWidth, UploaderType, DocumentFile, ProgramFile } from '../../types';
 import { uid } from '../../utils/helpers';
 
 interface ApprovalEditorProps {
@@ -11,6 +11,22 @@ interface ApprovalEditorProps {
   setApprovalSubtitle: (subtitle: string) => void;
   formFields: FormField[];
   setFormFields: React.Dispatch<React.SetStateAction<FormField[]>>;
+  uploaderType: UploaderType;
+  setUploaderType: (type: UploaderType) => void;
+  documentFiles: DocumentFile[];
+  setDocumentFiles: React.Dispatch<React.SetStateAction<DocumentFile[]>>;
+  programFiles: ProgramFile[];
+  setProgramFiles: React.Dispatch<React.SetStateAction<ProgramFile[]>>;
+  showPagination: boolean;
+  setShowPagination: (show: boolean) => void;
+  showEmptyState: boolean;
+  setShowEmptyState: (show: boolean) => void;
+  emptyStateMessage: string;
+  setEmptyStateMessage: (message: string) => void;
+  currentPage: number;
+  setCurrentPage: (page: number) => void;
+  totalPages: number;
+  setTotalPages: (pages: number) => void;
 }
 
 export const ApprovalEditor: React.FC<ApprovalEditorProps> = ({
@@ -20,6 +36,22 @@ export const ApprovalEditor: React.FC<ApprovalEditorProps> = ({
   setApprovalSubtitle,
   formFields,
   setFormFields,
+  uploaderType,
+  setUploaderType,
+  documentFiles,
+  setDocumentFiles,
+  programFiles,
+  setProgramFiles,
+  showPagination,
+  setShowPagination,
+  showEmptyState,
+  setShowEmptyState,
+  emptyStateMessage,
+  setEmptyStateMessage,
+  currentPage,
+  setCurrentPage,
+  totalPages,
+  setTotalPages,
 }) => {
   const addFormField = (type: FormFieldType, width: DropdownWidth) => {
     const newField: FormField = {
@@ -87,6 +119,32 @@ export const ApprovalEditor: React.FC<ApprovalEditorProps> = ({
     );
   };
 
+  const addDocumentFile = () => {
+    const newDoc: DocumentFile = {
+      id: `doc_${Date.now()}`,
+      fileName: `문서${documentFiles.length + 1}.pdf`,
+      filePath: '/path/to/document.pdf',
+    };
+    setDocumentFiles((prev) => [...prev, newDoc]);
+  };
+
+  const removeDocumentFile = (id: string) => {
+    setDocumentFiles((prev) => prev.filter((d) => d.id !== id));
+  };
+
+  const addProgramFile = () => {
+    const newProg: ProgramFile = {
+      id: `prog_${Date.now()}`,
+      fileName: `프로그램${programFiles.length + 1}.exe`,
+      filePath: '/path/to/program.exe',
+    };
+    setProgramFiles((prev) => [...prev, newProg]);
+  };
+
+  const removeProgramFile = (id: string) => {
+    setProgramFiles((prev) => prev.filter((p) => p.id !== id));
+  };
+
   return (
     <div className="grid gap-4">
       {/* 제목 및 서브타이틀 */}
@@ -114,152 +172,325 @@ export const ApprovalEditor: React.FC<ApprovalEditorProps> = ({
         </label>
       </div>
 
-      {/* 폼 필드 추가 버튼 */}
+      {/* 옵션 */}
       <div className="grid gap-2">
-        <div className="text-[12px] font-extrabold text-white/85">폼 필드 추가</div>
+        <div className="text-[12px] font-extrabold text-white/85">옵션</div>
 
-        <div className="grid grid-cols-2 gap-2">
-          <button
-            type="button"
-            onClick={() => addFormField('dropdown', 'full')}
-            className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-[12px] font-extrabold transition hover:bg-white/10"
-          >
-            드롭다운 (100%)
-          </button>
-          <button
-            type="button"
-            onClick={() => addFormField('dropdown', 'half')}
-            className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-[12px] font-extrabold transition hover:bg-white/10"
-          >
-            드롭다운 (50%)
-          </button>
-        </div>
+        <label className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={showEmptyState}
+            onChange={(e) => {
+              setShowEmptyState(e.target.checked);
+            }}
+          />
+          <span className="text-[11px] font-semibold text-white/70">EmptyState 표시</span>
+        </label>
 
-        <div className="grid grid-cols-2 gap-2">
-          <button
-            type="button"
-            onClick={() => addFormField('input', 'full')}
-            className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-[12px] font-extrabold transition hover:bg-white/10"
-          >
-            인풋 (100%)
-          </button>
-          <button
-            type="button"
-            onClick={() => addFormField('input', 'half')}
-            className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-[12px] font-extrabold transition hover:bg-white/10"
-          >
-            인풋 (50%)
-          </button>
-        </div>
+        {showEmptyState && (
+          <label className="grid gap-1">
+            <span className="text-[11px] font-semibold text-white/70">EmptyState 메시지</span>
+            <input
+              className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
+              value={emptyStateMessage}
+              onChange={(e) => setEmptyStateMessage(e.target.value)}
+              placeholder="데이터가 없습니다."
+            />
+          </label>
+        )}
+
+        <label className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            checked={showPagination}
+            onChange={(e) => setShowPagination(e.target.checked)}
+          />
+          <span className="text-[11px] font-semibold text-white/70">Pagination 표시</span>
+        </label>
+
+        {showPagination && (
+          <div className="grid grid-cols-2 gap-2">
+            <label className="grid gap-1">
+              <span className="text-[11px] font-semibold text-white/70">현재 페이지</span>
+              <input
+                type="number"
+                min="1"
+                max={totalPages}
+                className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
+                value={currentPage}
+                onChange={(e) => setCurrentPage(Math.max(1, Math.min(totalPages, Number(e.target.value))))}
+              />
+            </label>
+            <label className="grid gap-1">
+              <span className="text-[11px] font-semibold text-white/70">전체 페이지</span>
+              <input
+                type="number"
+                min="1"
+                className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
+                value={totalPages}
+                onChange={(e) => setTotalPages(Math.max(1, Number(e.target.value)))}
+              />
+            </label>
+          </div>
+        )}
       </div>
 
-      {/* 폼 필드 목록 */}
-      <div className="grid gap-2">
-        <div className="text-[12px] font-extrabold text-white/85">폼 필드 ({formFields.length})</div>
+      {/* 파일 업로더 선택 */}
+      {!showEmptyState && (
+        <div className="grid gap-2">
+          <div className="text-[12px] font-extrabold text-white/85">파일 업로더 (100%)</div>
 
-        <div className="grid max-h-[500px] gap-2 overflow-y-auto">
-          {formFields.map((field, idx) => (
-            <div key={field.id} className="grid gap-2 rounded-2xl border border-white/15 bg-white/5 p-3">
+          <div className="grid grid-cols-3 gap-2">
+            <button
+              type="button"
+              onClick={() => setUploaderType('none')}
+              className={
+                'rounded-xl border px-3 py-2 text-[12px] font-extrabold transition ' +
+                (uploaderType === 'none' ? 'border-white/35 bg-white/10' : 'border-white/15 bg-white/5 hover:bg-white/10')
+              }
+            >
+              없음
+            </button>
+            <button
+              type="button"
+              onClick={() => setUploaderType('document')}
+              className={
+                'rounded-xl border px-3 py-2 text-[12px] font-extrabold transition ' +
+                (uploaderType === 'document' ? 'border-white/35 bg-white/10' : 'border-white/15 bg-white/5 hover:bg-white/10')
+              }
+            >
+              문서
+            </button>
+            <button
+              type="button"
+              onClick={() => setUploaderType('program')}
+              className={
+                'rounded-xl border px-3 py-2 text-[12px] font-extrabold transition ' +
+                (uploaderType === 'program' ? 'border-white/35 bg-white/10' : 'border-white/15 bg-white/5 hover:bg-white/10')
+              }
+            >
+              프로그램
+            </button>
+          </div>
+
+          {/* 문서 업로더 파일 관리 */}
+          {uploaderType === 'document' && (
+            <div className="grid gap-2 rounded-2xl border border-white/15 bg-white/5 p-3">
               <div className="flex items-center justify-between">
-                <div className="text-[11px] font-semibold text-white/70">
-                  {idx + 1}. {field.type === 'dropdown' ? '드롭다운' : '인풋'} ({field.width === 'full' ? '100%' : '50%'})
-                </div>
+                <div className="text-[11px] font-semibold text-white/70">문서 파일 ({documentFiles.length})</div>
                 <button
                   type="button"
-                  onClick={() => removeFormField(field.id)}
+                  onClick={addDocumentFile}
                   className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-[12px] font-extrabold transition hover:bg-white/10"
                 >
-                  삭제
+                  + 문서
                 </button>
               </div>
 
-              <label className="grid gap-1">
-                <span className="text-[11px] font-semibold text-white/70">라벨</span>
-                <input
-                  className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
-                  value={field.label}
-                  onChange={(e) => updateFieldLabel(field.id, e.target.value)}
-                />
-              </label>
-
-              {field.type === 'input' && (
-                <>
-                  <label className="grid gap-1">
-                    <span className="text-[11px] font-semibold text-white/70">플레이스홀더</span>
-                    <input
-                      className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
-                      value={field.placeholder || ''}
-                      onChange={(e) => updateFieldPlaceholder(field.id, e.target.value)}
-                    />
-                  </label>
-
-                  <label className="grid gap-1">
-                    <span className="text-[11px] font-semibold text-white/70">기본값 (입력된 값처럼 표시)</span>
-                    {field.label === '사유' ? (
-                      <textarea
-                        className="w-full resize-none rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
-                        value={field.defaultValue || ''}
-                        onChange={(e) => updateFieldDefaultValue(field.id, e.target.value)}
-                        rows={3}
-                      />
-                    ) : (
-                      <input
-                        className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
-                        value={field.defaultValue || ''}
-                        onChange={(e) => updateFieldDefaultValue(field.id, e.target.value)}
-                      />
-                    )}
-                  </label>
-                </>
-              )}
-
-              <label className="flex items-center gap-2">
-                <input type="checkbox" checked={field.required} onChange={() => toggleFieldRequired(field.id)} />
-                <span className="text-[11px] font-semibold text-white/70">필수 항목</span>
-              </label>
-
-              {/* 드롭다운 옵션 관리 */}
-              {field.type === 'dropdown' && (
-                <div className="grid gap-2 rounded-xl border border-white/15 bg-black/20 p-2">
-                  <div className="flex items-center justify-between">
-                    <div className="text-[11px] font-semibold text-white/70">드롭다운 옵션</div>
+              <div className="grid gap-2">
+                {documentFiles.map((doc, idx) => (
+                  <div key={doc.id} className="flex items-center gap-2">
+                    <div className="flex-1 text-[11px] font-semibold text-white/70 truncate">
+                      {idx + 1}. {doc.fileName}
+                    </div>
                     <button
                       type="button"
-                      onClick={() => addOption(field.id)}
-                      className="rounded-xl border border-white/15 bg-white/5 px-2 py-1 text-[11px] font-extrabold transition hover:bg-white/10"
+                      onClick={() => removeDocumentFile(doc.id)}
+                      className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-[12px] font-extrabold transition hover:bg-white/10"
                     >
-                      + 옵션
+                      -
                     </button>
                   </div>
-
-                  <div className="grid gap-1">
-                    {field.options && field.options.length > 0 ? (
-                      field.options.map((opt) => (
-                        <div key={opt.id} className="flex items-center gap-2">
-                          <input
-                            className="flex-1 rounded-xl border border-white/15 bg-black/30 px-2 py-1 text-[12px] font-semibold outline-none focus:border-white/35"
-                            value={opt.label}
-                            onChange={(e) => updateOptionLabel(field.id, opt.id, e.target.value)}
-                          />
-                          <button
-                            type="button"
-                            onClick={() => removeOption(field.id, opt.id)}
-                            className="rounded-xl border border-white/15 bg-white/5 px-2 py-1 text-[11px] font-extrabold transition hover:bg-white/10"
-                          >
-                            -
-                          </button>
-                        </div>
-                      ))
-                    ) : (
-                      <div className="text-[11px] text-white/50">옵션이 없습니다. '+ 옵션' 버튼을 눌러 추가하세요.</div>
-                    )}
-                  </div>
-                </div>
-              )}
+                ))}
+              </div>
             </div>
-          ))}
+          )}
+
+          {/* 프로그램 업로더 파일 관리 */}
+          {uploaderType === 'program' && (
+            <div className="grid gap-2 rounded-2xl border border-white/15 bg-white/5 p-3">
+              <div className="flex items-center justify-between">
+                <div className="text-[11px] font-semibold text-white/70">프로그램 파일 ({programFiles.length})</div>
+                <button
+                  type="button"
+                  onClick={addProgramFile}
+                  className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-[12px] font-extrabold transition hover:bg-white/10"
+                >
+                  + 프로그램
+                </button>
+              </div>
+
+              <div className="grid gap-2">
+                {programFiles.map((prog, idx) => (
+                  <div key={prog.id} className="flex items-center gap-2">
+                    <div className="flex-1 text-[11px] font-semibold text-white/70 truncate">
+                      {idx + 1}. {prog.fileName}
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => removeProgramFile(prog.id)}
+                      className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-[12px] font-extrabold transition hover:bg-white/10"
+                    >
+                      -
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
-      </div>
+      )}
+
+      {/* 폼 필드 추가 버튼 */}
+      {!showEmptyState && (
+        <div className="grid gap-2">
+          <div className="text-[12px] font-extrabold text-white/85">폼 필드 추가</div>
+
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => addFormField('dropdown', 'full')}
+              className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-[12px] font-extrabold transition hover:bg-white/10"
+            >
+              드롭다운 (100%)
+            </button>
+            <button
+              type="button"
+              onClick={() => addFormField('dropdown', 'half')}
+              className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-[12px] font-extrabold transition hover:bg-white/10"
+            >
+              드롭다운 (50%)
+            </button>
+          </div>
+
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => addFormField('input', 'full')}
+              className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-[12px] font-extrabold transition hover:bg-white/10"
+            >
+              인풋 (100%)
+            </button>
+            <button
+              type="button"
+              onClick={() => addFormField('input', 'half')}
+              className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-[12px] font-extrabold transition hover:bg-white/10"
+            >
+              인풋 (50%)
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* 폼 필드 목록 */}
+      {!showEmptyState && formFields.length > 0 && (
+        <div className="grid gap-2">
+          <div className="text-[12px] font-extrabold text-white/85">폼 필드 ({formFields.length})</div>
+
+          <div className="grid max-h-[500px] gap-2 overflow-y-auto">
+            {formFields.map((field, idx) => (
+              <div key={field.id} className="grid gap-2 rounded-2xl border border-white/15 bg-white/5 p-3">
+                <div className="flex items-center justify-between">
+                  <div className="text-[11px] font-semibold text-white/70">
+                    {idx + 1}. {field.type === 'dropdown' ? '드롭다운' : '인풋'} ({field.width === 'full' ? '100%' : '50%'})
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => removeFormField(field.id)}
+                    className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-[12px] font-extrabold transition hover:bg-white/10"
+                  >
+                    삭제
+                  </button>
+                </div>
+
+                <label className="grid gap-1">
+                  <span className="text-[11px] font-semibold text-white/70">라벨</span>
+                  <input
+                    className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
+                    value={field.label}
+                    onChange={(e) => updateFieldLabel(field.id, e.target.value)}
+                  />
+                </label>
+
+                {field.type === 'input' && (
+                  <>
+                    <label className="grid gap-1">
+                      <span className="text-[11px] font-semibold text-white/70">플레이스홀더</span>
+                      <input
+                        className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
+                        value={field.placeholder || ''}
+                        onChange={(e) => updateFieldPlaceholder(field.id, e.target.value)}
+                      />
+                    </label>
+
+                    <label className="grid gap-1">
+                      <span className="text-[11px] font-semibold text-white/70">기본값 (입력된 값처럼 표시)</span>
+                      {field.label === '사유' ? (
+                        <textarea
+                          className="w-full resize-none rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
+                          value={field.defaultValue || ''}
+                          onChange={(e) => updateFieldDefaultValue(field.id, e.target.value)}
+                          rows={3}
+                        />
+                      ) : (
+                        <input
+                          className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
+                          value={field.defaultValue || ''}
+                          onChange={(e) => updateFieldDefaultValue(field.id, e.target.value)}
+                        />
+                      )}
+                    </label>
+                  </>
+                )}
+
+                <label className="flex items-center gap-2">
+                  <input type="checkbox" checked={field.required} onChange={() => toggleFieldRequired(field.id)} />
+                  <span className="text-[11px] font-semibold text-white/70">필수 항목</span>
+                </label>
+
+                {/* 드롭다운 옵션 관리 */}
+                {field.type === 'dropdown' && (
+                  <div className="grid gap-2 rounded-xl border border-white/15 bg-black/20 p-2">
+                    <div className="flex items-center justify-between">
+                      <div className="text-[11px] font-semibold text-white/70">드롭다운 옵션</div>
+                      <button
+                        type="button"
+                        onClick={() => addOption(field.id)}
+                        className="rounded-xl border border-white/15 bg-white/5 px-2 py-1 text-[11px] font-extrabold transition hover:bg-white/10"
+                      >
+                        + 옵션
+                      </button>
+                    </div>
+
+                    <div className="grid gap-1">
+                      {field.options && field.options.length > 0 ? (
+                        field.options.map((opt) => (
+                          <div key={opt.id} className="flex items-center gap-2">
+                            <input
+                              className="flex-1 rounded-xl border border-white/15 bg-black/30 px-2 py-1 text-[12px] font-semibold outline-none focus:border-white/35"
+                              value={opt.label}
+                              onChange={(e) => updateOptionLabel(field.id, opt.id, e.target.value)}
+                            />
+                            <button
+                              type="button"
+                              onClick={() => removeOption(field.id, opt.id)}
+                              className="rounded-xl border border-white/15 bg-white/5 px-2 py-1 text-[11px] font-extrabold transition hover:bg-white/10"
+                            >
+                              -
+                            </button>
+                          </div>
+                        ))
+                      ) : (
+                        <div className="text-[11px] text-white/50">옵션이 없습니다. '+ 옵션' 버튼을 눌러 추가하세요.</div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
