@@ -45,7 +45,7 @@ export const ApprovalPreview: React.FC<ApprovalPreviewProps> = ({
       className="absolute left-1/2 top-1/2"
       style={{
         width: 500,
-        height: 700,
+        height: 600,
         transform: `translate(-50%, -50%) scale(${previewScale})`,
         transformOrigin: 'center',
         fontFamily: 'Pretendard',
