@@ -70,35 +70,6 @@ export const ApprovalPreview: React.FC<ApprovalPreviewProps> = ({
             <EmptyState message={emptyStateMessage} iconSize="medium" className="py-12" />
           ) : (
             <div className="space-y-3">
-              {/* 파일 업로더 */}
-              {uploaderType === 'document' && (
-                <div>
-                  <label className="block text-[12px] font-extrabold mb-1" style={{ color: t.text }}>
-                    허용할 문서 선택 <span style={{ color: '#ef4444' }}>*</span>
-                  </label>
-                  <DocumentUploader
-                    documents={documentFiles}
-                    onAdd={() => {}}
-                    onRemove={() => {}}
-                    disabled={true}
-                  />
-                </div>
-              )}
-
-              {uploaderType === 'program' && (
-                <div>
-                  <label className="block text-[12px] font-extrabold mb-1" style={{ color: t.text }}>
-                    프로그램 파일 선택 (EXE, LNK) <span style={{ color: '#ef4444' }}>*</span>
-                  </label>
-                  <ProgramUploader
-                    programs={programFiles}
-                    onAdd={() => {}}
-                    onRemove={() => {}}
-                    disabled={true}
-                  />
-                </div>
-              )}
-
               {/* 양식 필드들 */}
               {formFields.map((field) => (
                 <div key={field.id} style={{ width: field.width === 'full' ? '100%' : '50%', display: 'inline-block', paddingRight: field.width === 'half' ? '8px' : '0' }}>
@@ -166,6 +137,35 @@ export const ApprovalPreview: React.FC<ApprovalPreviewProps> = ({
                   )}
                 </div>
               ))}
+
+              {/* 파일 업로더 - 사유 필드 밑에 위치 */}
+              {uploaderType === 'document' && (
+                <div>
+                  <label className="block text-[12px] font-extrabold mb-1" style={{ color: t.text }}>
+                    허용할 문서 선택 <span style={{ color: '#ef4444' }}>*</span>
+                  </label>
+                  <DocumentUploader
+                    documents={documentFiles}
+                    onAdd={() => {}}
+                    onRemove={() => {}}
+                    disabled={true}
+                  />
+                </div>
+              )}
+
+              {uploaderType === 'program' && (
+                <div>
+                  <label className="block text-[12px] font-extrabold mb-1" style={{ color: t.text }}>
+                    프로그램 파일 선택 (EXE, LNK) <span style={{ color: '#ef4444' }}>*</span>
+                  </label>
+                  <ProgramUploader
+                    programs={programFiles}
+                    onAdd={() => {}}
+                    onRemove={() => {}}
+                    disabled={true}
+                  />
+                </div>
+              )}
             </div>
           )}
         </div>

@@ -95,6 +95,7 @@ export default function App() {
   };
 
   // Layout State
+  // Layout State
   const [themeMode, setThemeMode] = useState<ThemeMode>(() => loadFromSession()?.themeMode || 'light');
   const theme = THEME[themeMode];
   const [appTitle, setAppTitle] = useState(() => loadFromSession()?.appTitle || 'D-BUGGER');
@@ -113,6 +114,8 @@ export default function App() {
     { id: uid('side'), label: '폴더2', children: [{ id: uid('side'), label: '하위1' }] },
   ]);
   const [activeSideId, setActiveSideId] = useState<string | null>(() => loadFromSession()?.activeSideId || null);
+  const [footerUserName, setFooterUserName] = useState(() => loadFromSession()?.footerUserName || '관리자');
+  const [footerNotice, setFooterNotice] = useState(() => loadFromSession()?.footerNotice || '시스템 공지: 정기 점검이 2024년 1월 25일 02:00~04:00에 진행됩니다.');
 
   // Content State
   const [listMenu, setListMenu] = useState(() => loadFromSession()?.listMenu || '');
@@ -225,11 +228,10 @@ export default function App() {
       window.removeEventListener('resize', calc);
     };
   }, []);
-
   useEffect(() => {
     const state = {
       tab, trayType, trayHeaderText, trayTitle, trayMessage, trayButtonText,
-      themeMode, appTitle, topNav, activeTopNavId, sidebarMode, sidebarTitle, sideItems, activeSideId,
+      themeMode, appTitle, topNav, activeTopNavId, sidebarMode, sidebarTitle, sideItems, activeSideId, footerUserName, footerNotice,
       listMenu, listSubMenu, listTitle, listSubtitle, menuItems, extraButtons, showOverlay, tableMode, searchFilter, columns, rows,
       showContentPagination, contentCurrentPage, contentTotalPages, showContentEmptyState, contentEmptyStateMessage,
       approvalTitle, approvalSubtitle, formFields, uploaderType, documentFiles, programFiles, showPagination, currentPage, totalPages, showEmptyState, emptyStateMessage,
@@ -239,7 +241,7 @@ export default function App() {
     saveToSession(state);
   }, [
     tab, trayType, trayHeaderText, trayTitle, trayMessage, trayButtonText,
-    themeMode, appTitle, topNav, activeTopNavId, sidebarMode, sidebarTitle, sideItems, activeSideId,
+    themeMode, appTitle, topNav, activeTopNavId, sidebarMode, sidebarTitle, sideItems, activeSideId, footerUserName, footerNotice,
     listMenu, listSubMenu, listTitle, listSubtitle, menuItems, extraButtons, showOverlay, tableMode, searchFilter, columns, rows,
     showContentPagination, contentCurrentPage, contentTotalPages, showContentEmptyState, contentEmptyStateMessage,
     approvalTitle, approvalSubtitle, formFields, uploaderType, documentFiles, programFiles, showPagination, currentPage, totalPages, showEmptyState, emptyStateMessage,
@@ -289,7 +291,21 @@ export default function App() {
               <div className="grid gap-4">
                 <div className="text-[13px] font-semibold leading-relaxed text-white/75">아래는 "앱 레이아웃(Topbar + Sidebar + Content)"을 1200×800 고정 프레임으로 미리보는 화면이야.</div>
                 <div ref={previewWrapRef} className="relative h-[650px] w-[1200px] max-w-full overflow-hidden rounded-2xl border border-white/15 bg-white/5">
-                  <LayoutPreview theme={theme} appTitle={appTitle} topNav={topNav} activeTopNavId={activeTopNavId} onTopNavClick={setActiveTopNavId} sidebarTitle={sidebarTitle} sidebarMode={sidebarMode} sideItems={sideItems} activeSideId={activeSideId} onSideClick={setActiveSideId} previewScale={previewScale} />
+                  <LayoutPreview
+                    theme={theme}
+                    appTitle={appTitle}
+                    topNav={topNav}
+                    activeTopNavId={activeTopNavId}
+                    onTopNavClick={setActiveTopNavId}
+                    sidebarTitle={sidebarTitle}
+                    sidebarMode={sidebarMode}
+                    sideItems={sideItems}
+                    activeSideId={activeSideId}
+                    onSideClick={setActiveSideId}
+                    footerUserName={footerUserName}
+                    footerNotice={footerNotice}
+                    previewScale={previewScale}
+                  />
                   <div className="absolute bottom-3 right-3 rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-[12px] font-bold text-white/70">1200×800 · scale {Math.round(previewScale * 100)}%</div>
                 </div>
               </div>
@@ -298,8 +314,8 @@ export default function App() {
               <div className="grid gap-4">
                 <div className="text-[13px] font-semibold leading-relaxed text-white/75">아래는 "콘텐츠 섹션(리스트 헤더 + 테이블)"을 900×650 고정 프레임으로 미리보는 화면이야.</div>
                 <div ref={previewWrapRef} className="relative h-[650px] w-[900px] max-w-full overflow-hidden rounded-2xl border border-white/15 bg-white/5">
-                  <ContentPreview 
-                  theme={theme} listMenu={listMenu} listSubMenu={listSubMenu} listTitle={listTitle} listSubtitle={listSubtitle} menuItems={menuItems} extraButtons={extraButtons} tableMode={tableMode} columns={columns} rows={rows} showOverlay={showOverlay} searchFilter={searchFilter} showPagination={showContentPagination} currentPage={contentCurrentPage} totalPages={contentTotalPages} showEmptyState={showContentEmptyState} emptyStateMessage={contentEmptyStateMessage} previewScale={previewScale} />
+                  <ContentPreview
+                    theme={theme} listMenu={listMenu} listSubMenu={listSubMenu} listTitle={listTitle} listSubtitle={listSubtitle} menuItems={menuItems} extraButtons={extraButtons} tableMode={tableMode} columns={columns} rows={rows} showOverlay={showOverlay} searchFilter={searchFilter} showPagination={showContentPagination} currentPage={contentCurrentPage} totalPages={contentTotalPages} showEmptyState={showContentEmptyState} emptyStateMessage={contentEmptyStateMessage} previewScale={previewScale} />
                   <div className="absolute bottom-3 right-3 rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-[12px] font-bold text-white/70">900×650 · scale {Math.round(previewScale * 100)}%</div>
                 </div>
               </div>
@@ -335,7 +351,24 @@ export default function App() {
 
           <div className="max-h-[calc(100vh-200px)] overflow-y-auto p-4">
             {tab === 'tray' && <TrayEditor trayType={trayType} setTrayType={setTrayType} trayHeaderText={trayHeaderText} setTrayHeaderText={setTrayHeaderText} trayTitle={trayTitle} setTrayTitle={setTrayTitle} trayMessage={trayMessage} setTrayMessage={setTrayMessage} trayButtonText={trayButtonText} setTrayButtonText={setTrayButtonText} onUpdateTime={() => setTrayTime(formatNow())} onReset={resetTray} />}
-            {tab === 'layout' && <LayoutEditor themeMode={themeMode} setThemeMode={setThemeMode} appTitle={appTitle} setAppTitle={setAppTitle} topNav={topNav} setTopNav={setTopNav} sidebarTitle={sidebarTitle} setSidebarTitle={setSidebarTitle} sidebarMode={sidebarMode} setSidebarMode={setSidebarMode} sideItems={sideItems} setSideItems={setSideItems} />}
+            {tab === 'layout' && <LayoutEditor
+              themeMode={themeMode}
+              setThemeMode={setThemeMode}
+              appTitle={appTitle}
+              setAppTitle={setAppTitle}
+              topNav={topNav}
+              setTopNav={setTopNav}
+              sidebarTitle={sidebarTitle}
+              setSidebarTitle={setSidebarTitle}
+              sidebarMode={sidebarMode}
+              setSidebarMode={setSidebarMode}
+              sideItems={sideItems}
+              setSideItems={setSideItems}
+              footerUserName={footerUserName}
+              setFooterUserName={setFooterUserName}
+              footerNotice={footerNotice}
+              setFooterNotice={setFooterNotice}
+            />}
             {tab === 'content' && <ContentEditor listMenu={listMenu} setListMenu={setListMenu} listSubMenu={listSubMenu} setListSubMenu={setListSubMenu} listTitle={listTitle} setListTitle={setListTitle} listSubtitle={listSubtitle} setListSubtitle={setListSubtitle} menuItems={menuItems} setMenuItems={setMenuItems} extraButtons={extraButtons} setExtraButtons={setExtraButtons} tableMode={tableMode} setTableMode={setTableMode} columns={columns} setColumns={setColumns} rows={rows} setRows={setRows} showOverlay={showOverlay} setShowOverlay={setShowOverlay} searchFilter={searchFilter} setSearchFilter={setSearchFilter} showContentPagination={showContentPagination} setShowContentPagination={setShowContentPagination} showContentEmptyState={showContentEmptyState} setShowContentEmptyState={setShowContentEmptyState} contentEmptyStateMessage={contentEmptyStateMessage} setContentEmptyStateMessage={setContentEmptyStateMessage} contentCurrentPage={contentCurrentPage} setContentCurrentPage={setContentCurrentPage} contentTotalPages={contentTotalPages} setContentTotalPages={setContentTotalPages} />}
             {tab === 'approval' && <ApprovalEditor approvalTitle={approvalTitle} setApprovalTitle={setApprovalTitle} approvalSubtitle={approvalSubtitle} setApprovalSubtitle={setApprovalSubtitle} formFields={formFields} setFormFields={setFormFields} uploaderType={uploaderType} setUploaderType={setUploaderType} documentFiles={documentFiles} setDocumentFiles={setDocumentFiles} programFiles={programFiles} setProgramFiles={setProgramFiles} showPagination={showPagination} setShowPagination={setShowPagination} showEmptyState={showEmptyState} setShowEmptyState={setShowEmptyState} emptyStateMessage={emptyStateMessage} setEmptyStateMessage={setEmptyStateMessage} currentPage={currentPage} setCurrentPage={setCurrentPage} totalPages={totalPages} setTotalPages={setTotalPages} />}
             {tab === 'modal' && <ModalEditor modalType={modalType} setModalType={setModalType} confirmType={confirmType} setConfirmType={setConfirmType} modalTitle={modalTitle} setModalTitle={setModalTitle} modalMessage={modalMessage} setModalMessage={setModalMessage} confirmButtonText={confirmButtonText} setConfirmButtonText={setConfirmButtonText} cancelButtonText={cancelButtonText} setCancelButtonText={setCancelButtonText} showCancelButton={showCancelButton} setShowCancelButton={setShowCancelButton} showEmptyState={showModalEmptyState} setShowEmptyState={setShowModalEmptyState} emptyStateMessage={modalEmptyStateMessage} setEmptyStateMessage={setModalEmptyStateMessage} showTable={showTable} setShowTable={setShowTable} tableData={tableData} setTableData={setTableData} modalHeader={modalHeader} setModalHeader={setModalHeader} showModalHeader={showModalHeader} setShowModalHeader={setShowModalHeader} modalSize={modalSize} setModalSize={setModalSize} modalHeight={modalHeight} setModalHeight={setModalHeight} showPagination={showModalPagination} setShowPagination={setShowModalPagination} currentPage={modalCurrentPage} setCurrentPage={setModalCurrentPage} totalPages={modalTotalPages} setTotalPages={setModalTotalPages} />}

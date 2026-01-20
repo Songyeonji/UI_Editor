@@ -17,6 +17,10 @@ interface LayoutEditorProps {
   setSidebarMode: (mode: SidebarMode) => void;
   sideItems: SideItem[];
   setSideItems: React.Dispatch<React.SetStateAction<SideItem[]>>;
+  footerUserName: string;
+  setFooterUserName: (name: string) => void;
+  footerNotice: string;
+  setFooterNotice: (notice: string) => void;
 }
 
 export const LayoutEditor: React.FC<LayoutEditorProps> = ({
@@ -32,6 +36,10 @@ export const LayoutEditor: React.FC<LayoutEditorProps> = ({
   setSidebarMode,
   sideItems,
   setSideItems,
+  footerUserName,
+  setFooterUserName,
+  footerNotice,
+  setFooterNotice,
 }) => {
   const addTopNav = () => setTopNav((p) => [...p, { id: uid('nav'), label: `메뉴${p.length + 1}` }]);
   const removeTopNav = (id: string) => setTopNav((p) => p.filter((x) => x.id !== id));
@@ -257,6 +265,29 @@ export const LayoutEditor: React.FC<LayoutEditorProps> = ({
             </div>
           ))}
         </div>
+      </div>
+
+      {/* Footer */}
+      <div className="grid gap-2">
+        <div className="text-[12px] font-extrabold text-white/85">Footer</div>
+        
+        <label className="grid gap-1">
+          <span className="text-[11px] font-semibold text-white/70">사용자 이름</span>
+          <input
+            className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
+            value={footerUserName}
+            onChange={(e) => setFooterUserName(e.target.value)}
+          />
+        </label>
+
+        <label className="grid gap-1">
+          <span className="text-[11px] font-semibold text-white/70">공지사항</span>
+          <input
+            className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
+            value={footerNotice}
+            onChange={(e) => setFooterNotice(e.target.value)}
+          />
+        </label>
       </div>
     </div>
   );

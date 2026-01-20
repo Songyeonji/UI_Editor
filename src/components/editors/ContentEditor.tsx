@@ -117,7 +117,7 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
           ...row,
           cells: {
             ...row.cells,
-            [id]: cellType === 'switch' ? false : cellType === 'status' ? '허용' : '데이터'
+            [id]: cellType === 'switch' ? false : cellType === 'status' ? (col.statusOptions?.trueText || '허용') : '데이터'
           },
         }))
       );
@@ -473,6 +473,47 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
                     <option value="status">상태 (허용/차단)</option>
                   </select>
                 </label>
+
+                {/* 상태 텍스트 설정 - status 타입일 때만 표시 */}
+                {col.cellType === 'status' && (
+                  <div className="grid grid-cols-2 gap-2">
+                    <label className="grid gap-1">
+                      <span className="text-[11px] font-semibold text-white/70">True 텍스트</span>
+                      <input
+                        className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
+                        value={col.statusOptions?.trueText || '허용'}
+                        onChange={(e) => {
+                          setColumns((p) =>
+                            p.map((x) =>
+                              x.id === col.id
+                                ? { ...x, statusOptions: { ...x.statusOptions, trueText: e.target.value, falseText: x.statusOptions?.falseText || '차단' } }
+                                : x
+                            )
+                          );
+                        }}
+                        placeholder="허용"
+                      />
+                    </label>
+                    <label className="grid gap-1">
+                      <span className="text-[11px] font-semibold text-white/70">False 텍스트</span>
+                      <input
+                        className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
+                        value={col.statusOptions?.falseText || '차단'}
+                        onChange={(e) => {
+                          setColumns((p) =>
+                            p.map((x) =>
+                              x.id === col.id
+                                ? { ...x, statusOptions: { ...x.statusOptions, trueText: x.statusOptions?.trueText || '허용', falseText: e.target.value } }
+                                : x
+                            )
+                          );
+                        }}
+                        placeholder="차단"
+                      />
+                    </label>
+
+                  </div>
+                )}
                 <label className="grid gap-1">
                   <span className="text-[11px] font-semibold text-white/70">열 너비 (%, 빈 값 = 자동)</span>
                   <input
@@ -537,8 +578,8 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
                             value={String(row.cells[col.id])}
                             onChange={(e) => updateCellValue(row.id, col.id, e.target.value)}
                           >
-                            <option value="허용">허용</option>
-                            <option value="차단">차단</option>
+                            <option value={col.statusOptions?.trueText || '허용'}>{col.statusOptions?.trueText || '허용'}</option>
+                            <option value={col.statusOptions?.falseText || '차단'}>{col.statusOptions?.falseText || '차단'}</option>
                           </select>
                         ) : (
                           <input

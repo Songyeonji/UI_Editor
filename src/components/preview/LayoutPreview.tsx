@@ -15,6 +15,8 @@ interface LayoutPreviewProps {
   sideItems: SideItem[];
   activeSideId: string | null;
   onSideClick: (id: string) => void;
+  footerUserName: string;
+  footerNotice: string;
   previewScale: number;
 }
 
@@ -29,6 +31,8 @@ export const LayoutPreview: React.FC<LayoutPreviewProps> = ({
   sideItems,
   activeSideId,
   onSideClick,
+  footerUserName,
+  footerNotice,
   previewScale,
 }) => {
   const accent = t.accent;
@@ -220,7 +224,7 @@ export const LayoutPreview: React.FC<LayoutPreviewProps> = ({
         </div>
 
         {/* Body */}
-        <div className="flex h-[calc(800px-56px)]">
+        <div className="flex h-[calc(800px-56px-48px)]">
           {/* Sidebar */}
           <aside className="w-[260px] p-4" style={{ backgroundColor: t.panel, borderRight: `1px solid ${t.border}` }}>
             <div className="mb-3 flex items-center gap-2">
@@ -251,6 +255,26 @@ export const LayoutPreview: React.FC<LayoutPreviewProps> = ({
             </div>
           </main>
         </div>
+
+        {/* Footer */}
+        <footer className="flex h-12 items-center" style={{ backgroundColor: t.panel, borderTop: `1px solid ${t.border}` }}>
+          {/* User Area - 사이드바와 동일한 너비 */}
+          <div className="flex w-[260px] items-center justify-center" style={{ borderRight: `1px solid ${t.border}` }}>
+            <div className="flex items-center gap-2">
+              <div className="grid h-7 w-7 place-items-center rounded-full text-[11px] font-black text-white" style={{ backgroundColor: accent }}>
+                U
+              </div>
+              <div className="text-[12px] font-extrabold">{footerUserName}</div>
+            </div>
+          </div>
+
+          {/* Notice Area */}
+          <div className="flex flex-1 items-center px-4">
+            <div className="w-full rounded-lg px-3 py-1 text-[12px] font-semibold" style={{ backgroundColor: `${accent}11`, color: accent }}>
+              {footerNotice}
+            </div>
+          </div>
+        </footer>
       </div>
     </div>
   );
