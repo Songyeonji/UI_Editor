@@ -26,10 +26,23 @@ export const SidebarTree: React.FC<SidebarTreeProps> = ({
 
   const toggle = (id: string) => setOpen((o) => ({ ...o, [id]: !o[id] }));
 
+  // 하위 메뉴 중에 활성화된 아이템이 있는지 확인하는 함수
+  const hasActiveChild = (item: SideItem): boolean => {
+    if (!item.children?.length) return false;
+    
+    for (const child of item.children) {
+      if (child.id === activeId) return true;
+      if (hasActiveChild(child)) return true;
+    }
+    
+    return false;
+  };
+
   const Row = ({ item, depth }: { item: SideItem; depth: number }) => {
     const hasChildren = !!item.children?.length;
     const isOpen = !!open[item.id];
     const isActive = activeId === item.id;
+    const isParentOfActive = hasActiveChild(item); // 하위에 활성화된 아이템이 있는지
 
     return (
       <div>
@@ -42,15 +55,15 @@ export const SidebarTree: React.FC<SidebarTreeProps> = ({
           className="group flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-[13px] font-extrabold transition"
           style={{
             paddingLeft: 10 + depth * 14,
-            color: isActive ? accent : textColor,
-            backgroundColor: isActive ? `${accent}22` : "transparent",
+            color: (isActive || isParentOfActive) ? accent : textColor,
+            backgroundColor: (isActive || isParentOfActive) ? `${accent}22` : "transparent",
           }}
           onMouseEnter={(e) => {
-            if (!isActive) e.currentTarget.style.backgroundColor = hoverBg;
+            if (!isActive && !isParentOfActive) e.currentTarget.style.backgroundColor = hoverBg;
           }}
           onMouseLeave={(e) => {
-            if (!isActive)
-              e.currentTarget.style.backgroundColor = isActive
+            if (!isActive && !isParentOfActive)
+              e.currentTarget.style.backgroundColor = (isActive || isParentOfActive)
                 ? `${accent}22`
                 : "transparent";
           }}

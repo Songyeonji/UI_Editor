@@ -73,9 +73,10 @@ export const LayoutPreview: React.FC<LayoutPreviewProps> = ({
                 onClick={() => onSideClick(it.id)}
                 className="flex w-full items-center gap-2 rounded-xl px-3 py-2 text-left text-[13px] font-extrabold transition"
                 style={{
-                  color: isActive ? accent : t.text,
-                  backgroundColor: isActive ? `${accent}22` : 'transparent',
+                  color: isActive ? t.muted : t.text,
+                  backgroundColor: isActive ? `${t.muted}22` : 'transparent',
                 }}
+
                 onMouseEnter={(e) => {
                   if (!isActive) e.currentTarget.style.backgroundColor = t.hover;
                 }}
@@ -102,14 +103,14 @@ export const LayoutPreview: React.FC<LayoutPreviewProps> = ({
       <div className="grid gap-1">
         {sideItems.map((it) => {
           const hasChildren = !!it.children?.length;
-          
+
           if (hasChildren) {
             // 폴더는 트리로
             return (
               <SidebarTree
                 key={it.id}
                 items={[it]}
-                accent={accent}
+                accent={accent}  // t.muted가 아닌 accent로 통일
                 textColor={t.text}
                 hoverBg={t.hover}
                 borderColor={t.border}
@@ -230,7 +231,7 @@ export const LayoutPreview: React.FC<LayoutPreviewProps> = ({
             <div className="mb-3 flex items-center gap-2">
               <div className="h-2 w-2 rounded-full" style={{ backgroundColor: accent }} />
               <div className="text-[12px] font-extrabold" style={{ color: t.muted }}>
-                {sidebarTitle} 
+                {sidebarTitle}
               </div>
             </div>
 

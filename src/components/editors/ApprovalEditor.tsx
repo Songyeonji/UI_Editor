@@ -175,33 +175,33 @@ export const ApprovalEditor: React.FC<ApprovalEditorProps> = ({
           />
         </label>
       </div>
-      {/* 체크박스 옵션 */}
-      {!showEmptyState && (
-        <div className="grid gap-2">
-          <div className="text-[12px] font-extrabold text-white/85">체크박스 옵션</div>
+{/* 체크박스 옵션 */}
+{!showEmptyState && (
+  <div className="grid gap-2">
+    <div className="text-[12px] font-extrabold text-white/85">체크박스 옵션</div>
+    
+    <label className="flex items-center gap-2">
+      <input 
+        type="checkbox" 
+        checked={checkboxOption.checked} 
+        onChange={(e) => setCheckboxOption(prev => ({ ...prev, checked: e.target.checked }))}
+      />
+      <span className="text-[11px] font-semibold text-white/70">체크박스 표시</span>
+    </label>
 
-          <label className="flex items-center gap-2">
-            <input
-              type="checkbox"
-              checked={checkboxOption.checked}
-              onChange={(e) => setCheckboxOption(prev => ({ ...prev, checked: e.target.checked }))}
-            />
-            <span className="text-[11px] font-semibold text-white/70">체크박스 표시</span>
-          </label>
-
-          {checkboxOption.checked && (
-            <label className="grid gap-1">
-              <span className="text-[11px] font-semibold text-white/70">체크박스 텍스트</span>
-              <input
-                className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
-                value={checkboxOption.label}
-                onChange={(e) => setCheckboxOption(prev => ({ ...prev, label: e.target.value }))}
-                placeholder="체크박스 옆에 표시할 텍스트"
-              />
-            </label>
-          )}
-        </div>
-      )}
+    {checkboxOption.checked && (
+      <label className="grid gap-1">
+        <span className="text-[11px] font-semibold text-white/70">체크박스 텍스트</span>
+        <input
+          className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
+          value={checkboxOption.label}
+          onChange={(e) => setCheckboxOption(prev => ({ ...prev, label: e.target.value }))}
+          placeholder="체크박스 옆에 표시할 텍스트"
+        />
+      </label>
+    )}
+  </div>
+)}
 
       {/* 파일 업로더 선택 */}
       {!showEmptyState && (

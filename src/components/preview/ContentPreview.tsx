@@ -68,14 +68,14 @@ export const ContentPreview: React.FC<ContentPreviewProps> = ({
           <div className="mb-3 flex items-center justify-between">
             <h1 className="flex items-center text-[20px] font-black">
               {listMenu && (
-                <span className="mr-2 flex items-center" style={{ color: t.muted }}>
+                <span className="mr-2 flex items-center" style={{ color: t.muted, opacity: 0.85 }}>
                   {listMenu}
                   <RiArrowRightSLine className="ml-1 inline-block" />
                 </span>
               )}
 
               {listSubMenu && (
-                <span className="mr-2 flex items-center" style={{ color: t.muted, opacity: 0.85 }}>
+                <span className="mr-2 flex items-center" style={{ color: t.muted }}>
                   {listSubMenu}
                   <RiArrowRightSLine className="ml-1 inline-block" />
                 </span>
