@@ -53,7 +53,7 @@ export const LogModalPreview: React.FC<LogModalPreviewProps> = ({
         <div className="p-4 overflow-y-auto" style={{ height: 'calc(100% - 64px)' }}>
           {/* 기본 정보 */}
           <div
-            className="mb-6 rounded-lg p-4"
+            className="mb-1 rounded-lg p-2"
             style={{ backgroundColor: t.panel }}
           >
             <div className="flex items-center justify-between mb-2">
@@ -70,7 +70,7 @@ export const LogModalPreview: React.FC<LogModalPreviewProps> = ({
             </span>
           </div>
           {/* 본문 */}
-          <div className="p-4 overflow-y-auto" style={{ height: 'calc(100% - 64px)' }}>
+          <div className="p-4 overflow-y-auto" >
 
             {/* 로그 타임라인 */}
             <LogTimeline
