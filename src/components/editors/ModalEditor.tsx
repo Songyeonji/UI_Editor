@@ -1,14 +1,15 @@
 // components/editors/ModalEditor.tsx
 
 import React from 'react';
-import type { ConfirmModalType, ModalHeaderType, ModalHeaderConfig, SmallTableData } from '../../types';
+import type { ConfirmModalType, ModalHeaderType, ModalHeaderConfig, SmallTableData, LogModalConfig, LogItem } from '../../types';
 import { ChipButton } from '../ui/ChipButton';
+import { uid } from '../../utils/helpers';
 
 type ModalSize = 'sm' | 'md' | 'lg' | 'xl' | '2xl';
 
 interface ModalEditorProps {
-  modalType: 'confirm' | 'general';
-  setModalType: (type: 'confirm' | 'general') => void;
+  modalType: 'confirm' | 'general' | 'log';
+  setModalType: (type: 'confirm' | 'general' | 'log') => void;
   confirmType: ConfirmModalType;
   setConfirmType: (type: ConfirmModalType) => void;
   modalTitle: string;
@@ -43,6 +44,8 @@ interface ModalEditorProps {
   setCurrentPage: (page: number) => void;
   totalPages: number;
   setTotalPages: (pages: number) => void;
+  logModalConfig: LogModalConfig;
+  setLogModalConfig: React.Dispatch<React.SetStateAction<LogModalConfig>>;
 }
 
 export const ModalEditor: React.FC<ModalEditorProps> = ({
@@ -82,6 +85,8 @@ export const ModalEditor: React.FC<ModalEditorProps> = ({
   setCurrentPage,
   totalPages,
   setTotalPages,
+  logModalConfig,
+  setLogModalConfig,
 }) => {
   const addTableHeader = () => {
     setTableData((prev) => ({
@@ -127,12 +132,67 @@ export const ModalEditor: React.FC<ModalEditorProps> = ({
     }));
   };
 
+  // 로그 모달 관련 함수
+  const addLogDate = () => {
+    const newDate: LogItem = {
+      date: new Date().toISOString().split('T')[0],
+      times: ['10:00:00'],
+    };
+    setLogModalConfig((prev) => ({
+      ...prev,
+      logs: [...prev.logs, newDate],
+    }));
+  };
+
+  const removeLogDate = (index: number) => {
+    setLogModalConfig((prev) => ({
+      ...prev,
+      logs: prev.logs.filter((_, i) => i !== index),
+    }));
+  };
+
+  const updateLogDate = (index: number, date: string) => {
+    setLogModalConfig((prev) => ({
+      ...prev,
+      logs: prev.logs.map((log, i) => (i === index ? { ...log, date } : log)),
+    }));
+  };
+
+  const addLogTime = (dateIndex: number) => {
+    setLogModalConfig((prev) => ({
+      ...prev,
+      logs: prev.logs.map((log, i) =>
+        i === dateIndex ? { ...log, times: [...log.times, '10:00:00'] } : log
+      ),
+    }));
+  };
+
+  const removeLogTime = (dateIndex: number, timeIndex: number) => {
+    setLogModalConfig((prev) => ({
+      ...prev,
+      logs: prev.logs.map((log, i) =>
+        i === dateIndex ? { ...log, times: log.times.filter((_, j) => j !== timeIndex) } : log
+      ),
+    }));
+  };
+
+  const updateLogTime = (dateIndex: number, timeIndex: number, time: string) => {
+    setLogModalConfig((prev) => ({
+      ...prev,
+      logs: prev.logs.map((log, i) =>
+        i === dateIndex
+          ? { ...log, times: log.times.map((t, j) => (j === timeIndex ? time : t)) }
+          : log
+      ),
+    }));
+  };
+
   return (
     <div className="grid gap-4">
       {/* 모달 타입 선택 */}
       <div className="grid gap-2">
         <div className="text-[12px] font-extrabold text-white/85">모달 타입</div>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-3 gap-2">
           <button
             type="button"
             onClick={() => setModalType('confirm')}
@@ -152,6 +212,16 @@ export const ModalEditor: React.FC<ModalEditorProps> = ({
             }
           >
             일반 모달
+          </button>
+          <button
+            type="button"
+            onClick={() => setModalType('log')}
+            className={
+              'rounded-xl border px-3 py-2 text-[13px] font-extrabold transition ' +
+              (modalType === 'log' ? 'border-white/35 bg-white/10' : 'border-white/15 bg-white/5 hover:bg-white/10')
+            }
+          >
+            로그 모달
           </button>
         </div>
       </div>
@@ -351,6 +421,125 @@ export const ModalEditor: React.FC<ModalEditorProps> = ({
         </>
       )}
 
+      {/* 로그 모달 전용 설정 */}
+      {modalType === 'log' && (
+        <div className="grid gap-2">
+          <div className="text-[12px] font-extrabold text-white/85">로그 정보</div>
+
+          <label className="grid gap-1">
+            <span className="text-[11px] font-semibold text-white/70">아이템 이름</span>
+            <input
+              className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
+              value={logModalConfig.itemName}
+              onChange={(e) => setLogModalConfig((prev) => ({ ...prev, itemName: e.target.value }))}
+              placeholder="차단된 프로그램.exe"
+            />
+          </label>
+
+          <label className="grid gap-1">
+            <span className="text-[11px] font-semibold text-white/70">아이템 경로</span>
+            <input
+              className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
+              value={logModalConfig.itemPath}
+              onChange={(e) => setLogModalConfig((prev) => ({ ...prev, itemPath: e.target.value }))}
+              placeholder="C:\Program Files\..."
+            />
+          </label>
+
+          <div className="grid grid-cols-2 gap-2">
+            <label className="grid gap-1">
+              <span className="text-[11px] font-semibold text-white/70">총 차단 횟수</span>
+              <input
+                type="number"
+                min="0"
+                className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
+                value={logModalConfig.detectionCount}
+                onChange={(e) => setLogModalConfig((prev) => ({ ...prev, detectionCount: Number(e.target.value) }))}
+              />
+            </label>
+
+            <label className="grid gap-1">
+              <span className="text-[11px] font-semibold text-white/70">최근 차단 일시</span>
+              <input
+                type="text"
+                className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
+                value={logModalConfig.blockedDate}
+                onChange={(e) => setLogModalConfig((prev) => ({ ...prev, blockedDate: e.target.value }))}
+                placeholder="2025-01-21 15:30"
+              />
+            </label>
+          </div>
+
+          {/* 로그 타임라인 */}
+          <div className="grid gap-2 rounded-2xl border border-white/15 bg-white/5 p-3">
+            <div className="flex items-center justify-between">
+              <div className="text-[11px] font-semibold text-white/70">차단 로그</div>
+              <button
+                type="button"
+                onClick={addLogDate}
+                className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-[12px] font-extrabold transition hover:bg-white/10"
+              >
+                + 날짜 추가
+              </button>
+            </div>
+
+            <div className="grid max-h-[400px] gap-2 overflow-y-auto">
+              {logModalConfig.logs.map((log, dateIdx) => (
+                <div key={dateIdx} className="grid gap-2 rounded-2xl border border-white/15 bg-black/20 p-3">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="date"
+                      className="flex-1 rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[12px] font-semibold outline-none focus:border-white/35"
+                      value={log.date}
+                      onChange={(e) => updateLogDate(dateIdx, e.target.value)}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => removeLogDate(dateIdx)}
+                      className="rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-[12px] font-extrabold transition hover:bg-white/10"
+                    >
+                      삭제
+                    </button>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="text-[11px] font-semibold text-white/60">시간 목록</div>
+                    <button
+                      type="button"
+                      onClick={() => addLogTime(dateIdx)}
+                      className="rounded-xl border border-white/15 bg-white/5 px-2 py-1 text-[11px] font-extrabold transition hover:bg-white/10"
+                    >
+                      + 시간
+                    </button>
+                  </div>
+
+                  <div className="grid gap-2">
+                    {log.times.map((time, timeIdx) => (
+                      <div key={timeIdx} className="flex items-center gap-2">
+                        <input
+                          type="time"
+                          step="1"
+                          className="flex-1 rounded-xl border border-white/15 bg-black/30 px-2 py-1 text-[12px] font-semibold outline-none focus:border-white/35"
+                          value={time}
+                          onChange={(e) => updateLogTime(dateIdx, timeIdx, e.target.value)}
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeLogTime(dateIdx, timeIdx)}
+                          className="rounded-xl border border-white/15 bg-white/5 px-2 py-1 text-[11px] font-extrabold transition hover:bg-white/10"
+                        >
+                          -
+                        </button>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* 공통 설정 */}
       <label className="grid gap-1">
         <span className="text-[12px] font-extrabold text-white/85">모달 제목</span>
@@ -362,7 +551,7 @@ export const ModalEditor: React.FC<ModalEditorProps> = ({
         />
       </label>
 
-      {(modalType === 'confirm' || (!showEmptyState && !showTable)) && (
+      {(modalType === 'confirm' || (!showEmptyState && !showTable && modalType !== 'log')) && (
         <label className="grid gap-1">
           <span className="text-[12px] font-extrabold text-white/85">메시지</span>
           <textarea

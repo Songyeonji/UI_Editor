@@ -1,7 +1,7 @@
 // components/editors/ContentEditor.tsx
 
 import React from 'react';
-import type { ExtraButton, TableColumn, TableRow, TableMode, ButtonVariant, SearchFilterConfig } from '../../types';
+import type { ExtraButton, TableColumn, TableRow, TableMode, ButtonVariant, SearchFilterConfig, BadgeOptions, CellType } from '../../types';
 import { uid } from '../../utils/helpers';
 
 interface ContentEditorProps {
@@ -107,7 +107,7 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
   };
 
   const renameColumn = (id: string, header: string) => setColumns((p) => p.map((x) => (x.id === id ? { ...x, header } : x)));
-  const changeCellType = (id: string, cellType: 'text' | 'switch' | 'status') => {
+  const changeCellType = (id: string, cellType: CellType) => {
     setColumns((p) => {
       const col = p.find((x) => x.id === id);
       if (!col) return p;
@@ -117,7 +117,13 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
           ...row,
           cells: {
             ...row.cells,
-            [id]: cellType === 'switch' ? false : cellType === 'status' ? (col.statusOptions?.trueText || '허용') : '데이터'
+            [id]: cellType === 'switch'
+              ? false
+              : cellType === 'status'
+                ? (col.statusOptions?.trueText || '허용')
+                : cellType === 'badge'
+                  ? { text: '뱃지', variant: 'blue' }  // 🔧 variant로 변경
+                  : '데이터'
           },
         }))
       );
@@ -126,20 +132,28 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
     });
   };
 
-  const changeColumnWidth = (id: string, width: number | undefined) =>
-    setColumns((p) => p.map((x) => (x.id === id ? { ...x, width } : x)));
-
+  // addRow 함수 수정
   const addRow = () => {
     const newRow: TableRow = {
       id: uid('row'),
-      cells: Object.fromEntries(columns.map((c) => [c.id, c.hasSwitch ? false : '데이터'])),
+      cells: Object.fromEntries(columns.map((c) => [
+        c.id,
+        c.cellType === 'switch'
+          ? false
+          : c.cellType === 'badge'
+            ? { text: '뱃지', variant: 'blue' }  // 🔧 variant로 변경
+            : '데이터'
+      ])),
     };
     setRows((p) => [...p, newRow]);
   };
+  const changeColumnWidth = (id: string, width: number | undefined) =>
+    setColumns((p) => p.map((x) => (x.id === id ? { ...x, width } : x)));
+
 
   const removeRow = (id: string) => setRows((p) => p.filter((x) => x.id !== id));
 
-  const updateCellValue = (rowId: string, colId: string, value: string | boolean) => {
+  const updateCellValue = (rowId: string, colId: string, value: string | boolean | BadgeOptions) => {
     setRows((p) =>
       p.map((row) => {
         if (row.id !== rowId) return row;
@@ -466,11 +480,12 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
                   <select
                     className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
                     value={col.cellType || 'text'}
-                    onChange={(e) => changeCellType(col.id, e.target.value as 'text' | 'switch' | 'status')}
+                    onChange={(e) => changeCellType(col.id, e.target.value as CellType)}
                   >
                     <option value="text">텍스트</option>
                     <option value="switch">스위치</option>
                     <option value="status">상태 (허용/차단)</option>
+                    <option value="badge">뱃지</option>
                   </select>
                 </label>
 
@@ -511,9 +526,9 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
                         placeholder="차단"
                       />
                     </label>
-
                   </div>
                 )}
+
                 <label className="grid gap-1">
                   <span className="text-[11px] font-semibold text-white/70">열 너비 (%, 빈 값 = 자동)</span>
                   <input
@@ -581,6 +596,41 @@ export const ContentEditor: React.FC<ContentEditorProps> = ({
                             <option value={col.statusOptions?.trueText || '허용'}>{col.statusOptions?.trueText || '허용'}</option>
                             <option value={col.statusOptions?.falseText || '차단'}>{col.statusOptions?.falseText || '차단'}</option>
                           </select>
+                        ) : col.cellType === 'badge' ? (
+                          <div className="grid gap-2">
+                            <input
+                              className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
+                              value={(row.cells[col.id] as BadgeOptions).text || ''}
+                              onChange={(e) => {
+                                const currentBadge = row.cells[col.id] as BadgeOptions;
+                                updateCellValue(row.id, col.id, {
+                                  ...currentBadge,
+                                  text: e.target.value,
+                                });
+                              }}
+                              placeholder="뱃지 텍스트"
+                            />
+                            {/* 🔧 색상 피커 대신 variant 드롭다운 */}
+                            <label className="grid gap-1">
+                              <span className="text-[11px] font-semibold text-white/60">색상</span>
+                              <select
+                                className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
+                                value={(row.cells[col.id] as BadgeOptions).variant || 'blue'}
+                                onChange={(e) => {
+                                  const currentBadge = row.cells[col.id] as BadgeOptions;
+                                  updateCellValue(row.id, col.id, {
+                                    ...currentBadge,
+                                    variant: e.target.value as 'blue' | 'yellow' | 'green' | 'red',
+                                  });
+                                }}
+                              >
+                                <option value="blue">파란색</option>
+                                <option value="yellow">노란색</option>
+                                <option value="green">초록색</option>
+                                <option value="red">빨간색</option>
+                              </select>
+                            </label>
+                          </div>
                         ) : (
                           <input
                             className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"

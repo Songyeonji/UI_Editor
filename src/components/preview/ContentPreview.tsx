@@ -5,7 +5,8 @@ import { RiArrowRightSLine } from 'react-icons/ri';
 import Button from '../ui/Button';
 import { Pagination } from '../ui/Pagination';
 import { EmptyState } from '../ui/EmptyState';
-import type { ThemeColors, ExtraButton, TableColumn, TableRow, SearchFilterConfig } from '../../types';
+import { StatusBadge } from '../ui/StatusBadge';
+import type { ThemeColors, ExtraButton, TableColumn, TableRow, SearchFilterConfig, BadgeOptions } from '../../types';
 
 interface ContentPreviewProps {
   theme: ThemeColors;
@@ -207,6 +208,13 @@ export const ContentPreview: React.FC<ContentPreviewProps> = ({
                               >
                                 {String(row.cells[col.id] ?? '-')}
                               </span>
+                            ) : col.cellType === 'badge' ? (
+                              <StatusBadge
+                                variant={(row.cells[col.id] as BadgeOptions).variant}  // 🔧 variant 사용
+                                size="small"
+                              >
+                                {(row.cells[col.id] as BadgeOptions).text}
+                              </StatusBadge>
                             ) : (
                               String(row.cells[col.id] ?? '-')
                             )}

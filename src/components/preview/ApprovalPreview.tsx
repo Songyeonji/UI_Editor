@@ -5,7 +5,7 @@ import { Pagination } from '../ui/Pagination';
 import { EmptyState } from '../ui/EmptyState';
 import { DocumentUploader, type DocumentFile } from '../ui/DocumentUploader';
 import { ProgramUploader, type ProgramFile } from '../ui/ProgramUploader';
-import type { ThemeColors, FormField, UploaderType, CheckboxOption } from '../../types';
+import type { ThemeColors, FormField, UploaderType, CheckboxOption, NoticeField } from '../../types';
 
 interface ApprovalPreviewProps {
   theme: ThemeColors;
@@ -22,6 +22,7 @@ interface ApprovalPreviewProps {
   totalPages: number;
   previewScale: number;
   checkboxOption: CheckboxOption;
+  noticeField: NoticeField;
 }
 
 export const ApprovalPreview: React.FC<ApprovalPreviewProps> = ({
@@ -39,6 +40,7 @@ export const ApprovalPreview: React.FC<ApprovalPreviewProps> = ({
   totalPages,
   previewScale,
   checkboxOption,
+  noticeField,
 }) => {
   const [openDropdownId, setOpenDropdownId] = React.useState<string | null>(null);
 
@@ -178,6 +180,19 @@ export const ApprovalPreview: React.FC<ApprovalPreviewProps> = ({
                     onRemove={() => { }}
                     disabled={true}
                   />
+                </div>
+              )}
+              {/* 공지사항 필드 - 맨 아래 표시 */}
+              {noticeField.text && (
+                <div
+                  className="rounded-xl px-3 py-2 text-[12px] font-extrabold"
+                  style={{
+                    backgroundColor: `${noticeField.color}15`,
+                    border: `1px solid ${noticeField.color}30`,
+                    color: noticeField.color
+                  }}
+                >
+                  {noticeField.text}
                 </div>
               )}
             </div>

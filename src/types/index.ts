@@ -12,6 +12,13 @@ export type FormFieldType = "dropdown" | "input";
 export type ConfirmModalType = "info" | "warning" | "error" | "success" | "yesNo";
 export type ModalHeaderType = "member" | "asset" | "department";
 
+// 뱃지 variant (4가지 색상만)
+export type BadgeVariant = 'blue' | 'yellow' | 'green' | 'red';
+
+export interface StatusOptions {
+  trueText?: string;
+  falseText?: string;
+}
 export interface NavItem {
   id: string;
   label: string;
@@ -27,18 +34,22 @@ export interface CheckboxOption {
   label: string;
   checked: boolean;
 }
+export type CellType = 'text' | 'switch' | 'status' | 'badge';
+
 export interface TableColumn {
   id: string;
   header: string;
   hasSwitch: boolean;
-  cellType?: 'text' | 'switch' | 'status';
+  cellType: CellType;
   width?: number;
-  statusOptions?: { trueText: string; falseText: string }; // 추가
+  statusOptions?: StatusOptions;
+  badgeOptions?: BadgeOptions;
 }
+
 
 export interface TableRow {
   id: string;
-  cells: { [colId: string]: string | boolean };
+  cells: Record<string, string | boolean | BadgeOptions>;
 }
 
 export interface ExtraButton {
@@ -104,11 +115,48 @@ export interface DocumentFile {
   hashValue?: string;
 }
 
+export interface NoticeField {
+  id: string;
+  text: string;
+  color: string; // 빨간색 등
+}
+
+export interface DatePickerConfig {
+  enabled: boolean;
+  selectedRange: {
+    startDate: Date;
+    endDate: Date;
+    type: 'today' | 'yesterday' | 'last7days' | 'last30days' | 'thisMonth' | 'lastMonth' | 'custom';
+    label: string;
+  };
+}
 export interface ProgramFile {
   id: string;
   fileName: string;
   filePath: string;
   metadata?: any;
+}
+
+
+// 로그 모달용 - 로그 아이템 (날짜별 시간 목록)
+export interface LogItem {
+  date: string;
+  times: string[];
+}
+
+// 로그 모달용 - 로그 모달 설정
+export interface LogModalConfig {
+  itemName: string;
+  itemPath: string;
+  detectionCount: number;
+  blockedDate: string;
+  logs: LogItem[];
+}
+
+// 뱃지 타입용 - 뱃지 옵션
+export interface BadgeOptions {
+  text: string;
+  variant: BadgeVariant;  // blue | yellow | green | red
 }
 
 export type UploaderType = 'none' | 'document' | 'program';

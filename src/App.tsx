@@ -32,7 +32,12 @@ import type {
   DocumentFile,
   ProgramFile,
   CheckboxOption,
+  NoticeField,
+  DatePickerConfig,
+  LogModalConfig,
 } from './types';
+import type { DateRange } from './components/ui/DateRangePicker';
+import { LogModalPreview } from './components/preview/LogModalPreview';
 
 type ModalSize = 'sm' | 'md' | 'lg' | 'xl' | '2xl';
 
@@ -96,7 +101,6 @@ export default function App() {
   };
 
   // Layout State
-  // Layout State
   const [themeMode, setThemeMode] = useState<ThemeMode>(() => loadFromSession()?.themeMode || 'light');
   const theme = THEME[themeMode];
   const [appTitle, setAppTitle] = useState(() => loadFromSession()?.appTitle || 'D-BUGGER');
@@ -137,7 +141,23 @@ export default function App() {
       { value: 'status', label: '상태' },
     ],
   });
-
+  const [datePickerConfig, setDatePickerConfig] = useState<DateRange>(() => {
+    const saved = loadFromSession()?.datePickerConfig;
+    if (saved) {
+      return {
+        ...saved,
+        startDate: new Date(saved.startDate),
+        endDate: new Date(saved.endDate)
+      };
+    }
+    const today = new Date();
+    return {
+      startDate: today,
+      endDate: today,
+      type: 'today',
+      label: '오늘'
+    };
+  });
   const [showContentPagination, setShowContentPagination] = useState(() => loadFromSession()?.showContentPagination || false);
   const [contentCurrentPage, setContentCurrentPage] = useState(() => loadFromSession()?.contentCurrentPage || 1);
   const [contentTotalPages, setContentTotalPages] = useState(() => loadFromSession()?.contentTotalPages || 5);
@@ -180,6 +200,12 @@ export default function App() {
     { id: uid('field'), type: 'input', label: '제목', placeholder: '승인 요청 제목을 입력하세요', defaultValue: '프로그램 실행 허용 요청', required: true, width: 'full' },
     { id: uid('field'), type: 'input', label: '사유', placeholder: '승인 요청 사유를 입력하세요', defaultValue: '업무상 필요한 프로그램이므로 실행 허용을 요청드립니다.', required: true, width: 'full' },
   ]);
+
+  const [noticeField, setNoticeField] = useState<NoticeField>(() => loadFromSession()?.noticeField || {
+    id: uid('notice'),
+    text: '※ 중요: 승인 후에는 취소할 수 없습니다.',
+    color: '#ef4444'
+  });
   const [checkboxOption, setCheckboxOption] = useState<CheckboxOption>(() =>
     loadFromSession()?.checkboxOption || { id: uid('checkbox'), label: '개인정보 수집 및 이용에 동의합니다', checked: true }
   );
@@ -193,7 +219,9 @@ export default function App() {
   const [emptyStateMessage, setEmptyStateMessage] = useState(() => loadFromSession()?.emptyStateMessage || '데이터가 없습니다.');
 
   // Modal State
-  const [modalType, setModalType] = useState<'confirm' | 'general'>(() => loadFromSession()?.modalType || 'confirm');
+  const [modalType, setModalType] = useState<'confirm' | 'general' | 'log'>(
+    () => loadFromSession()?.modalType || 'confirm'
+  );
   const [confirmType, setConfirmType] = useState<ConfirmModalType>(() => loadFromSession()?.confirmType || 'warning');
   const [modalTitle, setModalTitle] = useState(() => loadFromSession()?.modalTitle || '주의');
   const [modalMessage, setModalMessage] = useState(() => loadFromSession()?.modalMessage || '이 작업을 진행하시겠습니까?');
@@ -214,6 +242,27 @@ export default function App() {
   const [showModalPagination, setShowModalPagination] = useState(() => loadFromSession()?.showModalPagination || false);
   const [modalCurrentPage, setModalCurrentPage] = useState(() => loadFromSession()?.modalCurrentPage || 1);
   const [modalTotalPages, setModalTotalPages] = useState(() => loadFromSession()?.modalTotalPages || 5);
+  const [logModalConfig, setLogModalConfig] = useState<LogModalConfig>(() => {
+    const saved = loadFromSession()?.logModalConfig;
+    if (saved) return saved;
+
+    return {
+      itemName: '차단된 프로그램.exe',
+      itemPath: 'C:\\Program Files\\Example\\program.exe',
+      detectionCount: 5,
+      blockedDate: '2025-01-21 15:30',
+      logs: [
+        {
+          date: '2025-01-21',
+          times: ['15:30:00', '14:25:00', '10:15:00']
+        },
+        {
+          date: '2025-01-20',
+          times: ['16:45:00', '09:20:00']
+        }
+      ]
+    };
+  });
 
   const [previewScale, setPreviewScale] = useState(0.75);
   const previewWrapRef = useRef<HTMLDivElement | null>(null);
@@ -239,7 +288,12 @@ export default function App() {
       showContentPagination, contentCurrentPage, contentTotalPages, showContentEmptyState, contentEmptyStateMessage,
       approvalTitle, approvalSubtitle, formFields, uploaderType, documentFiles, programFiles, showPagination, currentPage, totalPages, showEmptyState, emptyStateMessage,
       modalType, confirmType, modalTitle, modalMessage, confirmButtonText, cancelButtonText, showCancelButton, showModalEmptyState, modalEmptyStateMessage,
-      showTable, tableData, modalHeader, showModalHeader, modalSize, modalHeight, showModalPagination, modalCurrentPage, modalTotalPages, checkboxOption
+      showTable, tableData, modalHeader, showModalHeader, modalSize, modalHeight, showModalPagination, modalCurrentPage, modalTotalPages, checkboxOption, noticeField,
+      datePickerConfig: {
+        ...datePickerConfig,
+        startDate: datePickerConfig.startDate.toISOString(),
+        endDate: datePickerConfig.endDate.toISOString()
+      }, logModalConfig,
     };
     saveToSession(state);
   }, [
@@ -249,7 +303,8 @@ export default function App() {
     showContentPagination, contentCurrentPage, contentTotalPages, showContentEmptyState, contentEmptyStateMessage,
     approvalTitle, approvalSubtitle, formFields, uploaderType, documentFiles, programFiles, showPagination, currentPage, totalPages, showEmptyState, emptyStateMessage,
     modalType, confirmType, modalTitle, modalMessage, confirmButtonText, cancelButtonText, showCancelButton, showModalEmptyState, modalEmptyStateMessage,
-    showTable, tableData, modalHeader, showModalHeader, modalSize, modalHeight, showModalPagination, modalCurrentPage, modalTotalPages,  checkboxOption
+    showTable, tableData, modalHeader, showModalHeader, modalSize, modalHeight, showModalPagination, modalCurrentPage, modalTotalPages, checkboxOption, noticeField,
+    datePickerConfig, logModalConfig,
   ]);
 
   return (
@@ -327,20 +382,55 @@ export default function App() {
               <div className="grid gap-4">
                 <div className="text-[13px] font-semibold leading-relaxed text-white/75">아래는 "승인 양식"을 500×650 고정 프레임으로 미리보는 화면이야.</div>
                 <div ref={previewWrapRef} className="relative h-[650px] w-[500px] max-w-full overflow-hidden rounded-2xl border border-white/15 bg-white/5">
-                  <ApprovalPreview theme={theme} approvalTitle={approvalTitle} approvalSubtitle={approvalSubtitle} formFields={formFields} uploaderType={uploaderType} documentFiles={documentFiles} programFiles={programFiles} showPagination={showPagination} showEmptyState={showEmptyState} emptyStateMessage={emptyStateMessage} currentPage={currentPage} totalPages={totalPages} previewScale={previewScale} checkboxOption={checkboxOption} />
+                  <ApprovalPreview theme={theme} approvalTitle={approvalTitle} approvalSubtitle={approvalSubtitle} formFields={formFields} uploaderType={uploaderType} documentFiles={documentFiles} programFiles={programFiles} showPagination={showPagination} showEmptyState={showEmptyState} emptyStateMessage={emptyStateMessage} currentPage={currentPage} totalPages={totalPages} previewScale={previewScale} checkboxOption={checkboxOption} noticeField={noticeField} />
                   <div className="absolute bottom-3 right-3 rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-[12px] font-bold text-white/70">500×650 · scale {Math.round(previewScale * 100)}%</div>
                 </div>
               </div>
             )}
             {tab === 'modal' && (
               <div className="grid gap-4">
-                <div className="text-[13px] font-semibold leading-relaxed text-white/75">아래는 "모달"을 900×600 프레임에 표시하는 화면이야.</div>
+                <div className="text-[13px] font-semibold leading-relaxed text-white/75">
+                  아래는 "모달"을 900×600 프레임에 표시하는 화면이야.
+                </div>
                 <div ref={previewWrapRef} className="relative h-[600px] w-[900px] max-w-full overflow-hidden rounded-2xl border border-white/15 bg-black/20">
-                  <ModalPreview theme={theme} modalType={modalType} confirmType={confirmType} modalTitle={modalTitle} modalMessage={modalMessage} confirmButtonText={confirmButtonText} cancelButtonText={cancelButtonText} showCancelButton={showCancelButton} showEmptyState={showModalEmptyState} emptyStateMessage={modalEmptyStateMessage} showTable={showTable} tableData={tableData} modalHeader={modalHeader} showModalHeader={showModalHeader} modalSize={modalSize} modalHeight={modalHeight} showPagination={showModalPagination} currentPage={modalCurrentPage} totalPages={modalTotalPages} previewScale={previewScale} />
-                  <div className="absolute bottom-3 right-3 rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-[12px] font-bold text-white/70">900×600 영역</div>
+                  {modalType === 'log' ? (
+                    <LogModalPreview
+                      theme={theme}
+                      modalTitle={modalTitle}
+                      logConfig={logModalConfig}
+                      previewScale={previewScale}
+                    />
+                  ) : (
+                    <ModalPreview
+                      theme={theme}
+                      modalType={modalType}
+                      confirmType={confirmType}
+                      modalTitle={modalTitle}
+                      modalMessage={modalMessage}
+                      confirmButtonText={confirmButtonText}
+                      cancelButtonText={cancelButtonText}
+                      showCancelButton={showCancelButton}
+                      showEmptyState={showModalEmptyState}
+                      emptyStateMessage={modalEmptyStateMessage}
+                      showTable={showTable}
+                      tableData={tableData}
+                      modalHeader={modalHeader}
+                      showModalHeader={showModalHeader}
+                      modalSize={modalSize}
+                      modalHeight={modalHeight}
+                      showPagination={showModalPagination}
+                      currentPage={modalCurrentPage}
+                      totalPages={modalTotalPages}
+                      previewScale={previewScale}
+                    />
+                  )}
+                  <div className="absolute bottom-3 right-3 rounded-xl border border-white/15 bg-white/5 px-3 py-2 text-[12px] font-bold text-white/70">
+                    900×600 영역
+                  </div>
                 </div>
               </div>
             )}
+
           </div>
         </section>
 
@@ -374,8 +464,10 @@ export default function App() {
             />}
             {tab === 'content' && <ContentEditor listMenu={listMenu} setListMenu={setListMenu} listSubMenu={listSubMenu} setListSubMenu={setListSubMenu} listTitle={listTitle} setListTitle={setListTitle} listSubtitle={listSubtitle} setListSubtitle={setListSubtitle} menuItems={menuItems} setMenuItems={setMenuItems} extraButtons={extraButtons} setExtraButtons={setExtraButtons} tableMode={tableMode} setTableMode={setTableMode} columns={columns} setColumns={setColumns} rows={rows} setRows={setRows} showOverlay={showOverlay} setShowOverlay={setShowOverlay} searchFilter={searchFilter} setSearchFilter={setSearchFilter} showContentPagination={showContentPagination} setShowContentPagination={setShowContentPagination} showContentEmptyState={showContentEmptyState} setShowContentEmptyState={setShowContentEmptyState} contentEmptyStateMessage={contentEmptyStateMessage} setContentEmptyStateMessage={setContentEmptyStateMessage} contentCurrentPage={contentCurrentPage} setContentCurrentPage={setContentCurrentPage} contentTotalPages={contentTotalPages} setContentTotalPages={setContentTotalPages} />}
             {tab === 'approval' && <ApprovalEditor approvalTitle={approvalTitle} setApprovalTitle={setApprovalTitle} approvalSubtitle={approvalSubtitle} setApprovalSubtitle={setApprovalSubtitle} formFields={formFields} setFormFields={setFormFields} uploaderType={uploaderType} setUploaderType={setUploaderType} documentFiles={documentFiles} setDocumentFiles={setDocumentFiles} programFiles={programFiles} setProgramFiles={setProgramFiles} showPagination={showPagination} setShowPagination={setShowPagination} showEmptyState={showEmptyState} setShowEmptyState={setShowEmptyState} emptyStateMessage={emptyStateMessage} setEmptyStateMessage={setEmptyStateMessage} currentPage={currentPage} setCurrentPage={setCurrentPage} totalPages={totalPages} setTotalPages={setTotalPages} checkboxOption={checkboxOption}
-              setCheckboxOption={setCheckboxOption} />}
-            {tab === 'modal' && <ModalEditor modalType={modalType} setModalType={setModalType} confirmType={confirmType} setConfirmType={setConfirmType} modalTitle={modalTitle} setModalTitle={setModalTitle} modalMessage={modalMessage} setModalMessage={setModalMessage} confirmButtonText={confirmButtonText} setConfirmButtonText={setConfirmButtonText} cancelButtonText={cancelButtonText} setCancelButtonText={setCancelButtonText} showCancelButton={showCancelButton} setShowCancelButton={setShowCancelButton} showEmptyState={showModalEmptyState} setShowEmptyState={setShowModalEmptyState} emptyStateMessage={modalEmptyStateMessage} setEmptyStateMessage={setModalEmptyStateMessage} showTable={showTable} setShowTable={setShowTable} tableData={tableData} setTableData={setTableData} modalHeader={modalHeader} setModalHeader={setModalHeader} showModalHeader={showModalHeader} setShowModalHeader={setShowModalHeader} modalSize={modalSize} setModalSize={setModalSize} modalHeight={modalHeight} setModalHeight={setModalHeight} showPagination={showModalPagination} setShowPagination={setShowModalPagination} currentPage={modalCurrentPage} setCurrentPage={setModalCurrentPage} totalPages={modalTotalPages} setTotalPages={setModalTotalPages} />}
+              setCheckboxOption={setCheckboxOption} noticeField={noticeField}
+              setNoticeField={setNoticeField} />}
+            {tab === 'modal' && <ModalEditor modalType={modalType} setModalType={setModalType} confirmType={confirmType} setConfirmType={setConfirmType} modalTitle={modalTitle} setModalTitle={setModalTitle} modalMessage={modalMessage} setModalMessage={setModalMessage} confirmButtonText={confirmButtonText} setConfirmButtonText={setConfirmButtonText} cancelButtonText={cancelButtonText} setCancelButtonText={setCancelButtonText} showCancelButton={showCancelButton} setShowCancelButton={setShowCancelButton} showEmptyState={showModalEmptyState} setShowEmptyState={setShowModalEmptyState} emptyStateMessage={modalEmptyStateMessage} setEmptyStateMessage={setModalEmptyStateMessage} showTable={showTable} setShowTable={setShowTable} tableData={tableData} setTableData={setTableData} modalHeader={modalHeader} setModalHeader={setModalHeader} showModalHeader={showModalHeader} setShowModalHeader={setShowModalHeader} modalSize={modalSize} setModalSize={setModalSize} modalHeight={modalHeight} setModalHeight={setModalHeight} showPagination={showModalPagination} setShowPagination={setShowModalPagination} currentPage={modalCurrentPage} setCurrentPage={setModalCurrentPage} totalPages={modalTotalPages} setTotalPages={setModalTotalPages} logModalConfig={logModalConfig}
+              setLogModalConfig={setLogModalConfig} />}
           </div>
         </aside>
       </div>

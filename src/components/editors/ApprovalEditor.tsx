@@ -1,7 +1,7 @@
 // components/editors/ApprovalEditor.tsx
 
 import React from 'react';
-import type { FormField, DropdownOption, FormFieldType, DropdownWidth, UploaderType, DocumentFile, ProgramFile, CheckboxOption } from '../../types';
+import type { FormField, DropdownOption, FormFieldType, DropdownWidth, UploaderType, DocumentFile, ProgramFile, CheckboxOption, NoticeField } from '../../types';
 import { uid } from '../../utils/helpers';
 
 interface ApprovalEditorProps {
@@ -29,6 +29,8 @@ interface ApprovalEditorProps {
   setTotalPages: (pages: number) => void;
   checkboxOption: CheckboxOption;
   setCheckboxOption: React.Dispatch<React.SetStateAction<CheckboxOption>>;
+  noticeField: NoticeField;
+  setNoticeField: React.Dispatch<React.SetStateAction<NoticeField>>;
 }
 
 export const ApprovalEditor: React.FC<ApprovalEditorProps> = ({
@@ -55,7 +57,9 @@ export const ApprovalEditor: React.FC<ApprovalEditorProps> = ({
   totalPages,
   setTotalPages,
   checkboxOption,
-  setCheckboxOption
+  setCheckboxOption,
+  noticeField,
+  setNoticeField,
 }) => {
   const addFormField = (type: FormFieldType, width: DropdownWidth) => {
     const newField: FormField = {
@@ -175,33 +179,33 @@ export const ApprovalEditor: React.FC<ApprovalEditorProps> = ({
           />
         </label>
       </div>
-{/* 체크박스 옵션 */}
-{!showEmptyState && (
-  <div className="grid gap-2">
-    <div className="text-[12px] font-extrabold text-white/85">체크박스 옵션</div>
-    
-    <label className="flex items-center gap-2">
-      <input 
-        type="checkbox" 
-        checked={checkboxOption.checked} 
-        onChange={(e) => setCheckboxOption(prev => ({ ...prev, checked: e.target.checked }))}
-      />
-      <span className="text-[11px] font-semibold text-white/70">체크박스 표시</span>
-    </label>
+      {/* 체크박스 옵션 */}
+      {!showEmptyState && (
+        <div className="grid gap-2">
+          <div className="text-[12px] font-extrabold text-white/85">체크박스 옵션</div>
 
-    {checkboxOption.checked && (
-      <label className="grid gap-1">
-        <span className="text-[11px] font-semibold text-white/70">체크박스 텍스트</span>
-        <input
-          className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
-          value={checkboxOption.label}
-          onChange={(e) => setCheckboxOption(prev => ({ ...prev, label: e.target.value }))}
-          placeholder="체크박스 옆에 표시할 텍스트"
-        />
-      </label>
-    )}
-  </div>
-)}
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={checkboxOption.checked}
+              onChange={(e) => setCheckboxOption(prev => ({ ...prev, checked: e.target.checked }))}
+            />
+            <span className="text-[11px] font-semibold text-white/70">체크박스 표시</span>
+          </label>
+
+          {checkboxOption.checked && (
+            <label className="grid gap-1">
+              <span className="text-[11px] font-semibold text-white/70">체크박스 텍스트</span>
+              <input
+                className="w-full rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
+                value={checkboxOption.label}
+                onChange={(e) => setCheckboxOption(prev => ({ ...prev, label: e.target.value }))}
+                placeholder="체크박스 옆에 표시할 텍스트"
+              />
+            </label>
+          )}
+        </div>
+      )}
 
       {/* 파일 업로더 선택 */}
       {!showEmptyState && (
@@ -306,6 +310,58 @@ export const ApprovalEditor: React.FC<ApprovalEditorProps> = ({
               </div>
             </div>
           )}
+        </div>
+      )}
+
+      {/* 공지사항 필드 - 폼 필드 추가 버튼 앞에 배치 */}
+      {!showEmptyState && (
+        <div className="grid gap-2">
+          <div className="text-[12px] font-extrabold text-white/85">공지사항 필드 (100%)</div>
+
+          <label className="grid gap-1">
+            <span className="text-[11px] font-semibold text-white/70">공지사항 텍스트</span>
+            <textarea
+              className="w-full resize-none rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
+              value={noticeField.text}
+              onChange={(e) => setNoticeField(prev => ({ ...prev, text: e.target.value }))}
+              rows={2}
+              placeholder="공지사항 내용을 입력하세요"
+            />
+          </label>
+
+          <label className="grid gap-1">
+            <span className="text-[11px] font-semibold text-white/70">텍스트 색상</span>
+            <div className="flex gap-2">
+              <input
+                type="color"
+                value={noticeField.color}
+                onChange={(e) => setNoticeField(prev => ({ ...prev, color: e.target.value }))}
+                className="h-10 w-20 rounded-xl border border-white/15 bg-black/30 cursor-pointer"
+              />
+              <input
+                type="text"
+                value={noticeField.color}
+                onChange={(e) => setNoticeField(prev => ({ ...prev, color: e.target.value }))}
+                className="flex-1 rounded-xl border border-white/15 bg-black/30 px-3 py-2 text-[13px] font-semibold outline-none focus:border-white/35"
+                placeholder="#ef4444"
+              />
+            </div>
+          </label>
+
+          <label className="flex items-center gap-2">
+            <input
+              type="checkbox"
+              checked={!!noticeField.text}
+              onChange={(e) => {
+                if (!e.target.checked) {
+                  setNoticeField(prev => ({ ...prev, text: '' }));
+                } else {
+                  setNoticeField(prev => ({ ...prev, text: '※ 중요: 승인 후에는 취소할 수 없습니다.' }));
+                }
+              }}
+            />
+            <span className="text-[11px] font-semibold text-white/70">공지사항 표시</span>
+          </label>
         </div>
       )}
 
