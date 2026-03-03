@@ -4,6 +4,21 @@ import type { ButtonVariant } from '../components/ui/Button';
 
 export type TabKey = "tray" | "layout" | "content" | "approval" | "modal";
 export type TrayType = "info" | "success" | "warning" | "error";
+// ✅ V2 전용
+export type TrayVersion = "v1" | "v2";
+export type TrayV2Type = "info" | "success" | "danger";
+// ✅ 버튼 컬러 팔레트 타입 (7색)
+export type TrayButtonColorKey =
+  | 'red' | 'orange' | 'yellow' | 'green' | 'blue' | 'navy' | 'purple'
+  | 'gray'
+  | 'redSoft' | 'orangeSoft' | 'yellowSoft' | 'greenSoft' | 'blueSoft' | 'navySoft' | 'purpleSoft';
+
+// ✅ V2 버튼: color 선택 가능 (없으면 trayMeta.accent 사용)
+export interface TrayButton {
+  id: string;
+  label: string;
+  colorKey?: TrayButtonColorKey; // 선택 안 하면 undefined
+}
 export type ThemeMode = "dark" | "light";
 export type SidebarMode = "flat" | "folder" | "mixed";
 export type TableMode = "simple" | "checkable";
@@ -23,7 +38,10 @@ export interface NavItem {
   id: string;
   label: string;
 }
-
+export interface TrayButton {
+  id: string;
+  label: string;
+}
 export interface SideItem {
   id: string;
   label: string;

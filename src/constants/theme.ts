@@ -1,6 +1,6 @@
 // constants/theme.ts
 
-import type { TrayMeta, ThemeColors } from "../types";
+import type { TrayMeta, ThemeColors, TrayV2Type } from "../types";
 
 
 export const TRAY_META: Record<string, TrayMeta> = {
@@ -8,6 +8,12 @@ export const TRAY_META: Record<string, TrayMeta> = {
   success: { accent: "#22c55e", status: "완료 안내" },
   warning: { accent: "#f59e0b", status: "보안 주의" },
   error: { accent: "#ef4444", status: "보안 위험" },
+};
+// ✅ V2: Warning 제외, 3개 테마
+export const TRAY_V2_META: Record<TrayV2Type, TrayMeta> = {
+  info: { accent: "#3b82f6", status: "정보 안내" },
+  success: { accent: "#22c55e", status: "완료 안내" },
+  danger: { accent: "#ef4444", status: "위험 안내" },
 };
 
 export const THEME: Record<string, ThemeColors> = {

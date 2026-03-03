@@ -17,7 +17,7 @@ export const LogTimeline: React.FC<LogTimelineProps> = ({
   logs,
   actionText,
   className = '',
-  color = '#ef4444',
+  color = '#2e21e6',
 }) => {
   if (logs.length === 0) {
     return (

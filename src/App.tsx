@@ -10,8 +10,10 @@ import { LayoutEditor } from './components/editors/LayoutEditor';
 import { ContentEditor } from './components/editors/ContentEditor';
 import { ApprovalEditor } from './components/editors/ApprovalEditor';
 import { ModalEditor } from './components/editors/ModalEditor';
-import { TRAY_META, THEME } from './constants/theme';
+import { TRAY_META, THEME, TRAY_V2_META } from './constants/theme';
 import { formatNow, uid } from './utils/helpers';
+import { TrayPreviewV2 } from './components/preview/TrayPreviewV2';
+import { TrayEditorV2 } from './components/editors/TrayEditorV2';
 import type {
   TabKey,
   TrayType,
@@ -35,6 +37,9 @@ import type {
   NoticeField,
   DatePickerConfig,
   LogModalConfig,
+  TrayV2Type,
+  TrayButton,
+  TrayVersion,
 } from './types';
 import type { DateRange } from './components/ui/DateRangePicker';
 import { LogModalPreview } from './components/preview/LogModalPreview';
@@ -65,6 +70,10 @@ export default function App() {
 
   // Tray State
   const [trayType, setTrayType] = useState<TrayType>(() => loadFromSession()?.trayType || 'info');
+const [trayVersion, setTrayVersion] = useState<TrayVersion>(() => {
+  const saved = loadFromSession();
+  return saved?.trayVersion || 'v1';
+});
   const trayMeta = TRAY_META[trayType];
   const [trayHeaderText, setTrayHeaderText] = useState(() => loadFromSession()?.trayHeaderText || 'D-BUGGER · 정보 안내');
   const [trayTitle, setTrayTitle] = useState(() => loadFromSession()?.trayTitle || '알림 제목입니다');
@@ -99,7 +108,58 @@ export default function App() {
     setTrayButtonText('확인하기');
     setTrayTime(formatNow());
   };
+  //Tray2
 
+  // ✅ V2 State
+  const [trayV2Type, setTrayV2Type] = useState<TrayV2Type>(() => loadFromSession()?.trayV2Type || 'info');
+  const trayV2Meta = TRAY_V2_META[trayV2Type];
+
+  const [trayV2HeaderEnabled, setTrayV2HeaderEnabled] = useState(() => loadFromSession()?.trayV2HeaderEnabled ?? true);
+  const [trayV2HeaderText, setTrayV2HeaderText] = useState(() => loadFromSession()?.trayV2HeaderText || 'D-BUGGER');
+
+  const [trayV2StatusTextMap, setTrayV2StatusTextMap] = useState<Record<TrayV2Type, string>>(
+    () => loadFromSession()?.trayV2StatusTextMap || {
+      info: TRAY_V2_META.info.status,
+      success: TRAY_V2_META.success.status,
+      danger: TRAY_V2_META.danger.status,
+    }
+  );
+
+  const [trayV2Title, setTrayV2Title] = useState(() => loadFromSession()?.trayV2Title || '알림 제목(V2)입니다');
+  const [trayV2Message, setTrayV2Message] = useState(
+    () => loadFromSession()?.trayV2Message || `V2 메시지입니다.\n350×500 카드에 표시됩니다.`
+  );
+  const [trayV2Time, setTrayV2Time] = useState(() => formatNow());
+
+  const [trayV2Buttons, setTrayV2Buttons] = useState<TrayButton[]>(
+    () => loadFromSession()?.trayV2Buttons || [{ id: uid('traybtn'), label: '확인' }]
+  );
+  const [trayV2VerticalButtons, setTrayV2VerticalButtons] = useState(
+    () => loadFromSession()?.trayV2VerticalButtons ?? true
+  );
+useEffect(() => {
+  const onKeyDown = (e: KeyboardEvent) => {
+    if (tab !== 'tray') return;
+    if (e.key === 'Escape') closeTray();
+  };
+  window.addEventListener('keydown', onKeyDown);
+  return () => window.removeEventListener('keydown', onKeyDown);
+}, [tab]);
+const resetTrayV2 = () => {
+  setTrayV2Type('info');
+  setTrayV2HeaderEnabled(true);
+  setTrayV2HeaderText('D-BUGGER');
+  setTrayV2StatusTextMap({
+    info: TRAY_V2_META.info.status,
+    success: TRAY_V2_META.success.status,
+    danger: TRAY_V2_META.danger.status,
+  });
+  setTrayV2Title('알림 제목(V2)입니다');
+  setTrayV2Message(`V2 메시지입니다.\n350×500 카드에 표시됩니다.`);
+  setTrayV2Buttons([{ id: uid('traybtn'), label: '확인' }]);
+  setTrayV2VerticalButtons(true);
+  setTrayV2Time(formatNow());
+};
   // Layout State
   const [themeMode, setThemeMode] = useState<ThemeMode>(() => loadFromSession()?.themeMode || 'light');
   const theme = THEME[themeMode];
@@ -282,7 +342,8 @@ export default function App() {
   }, []);
   useEffect(() => {
     const state = {
-      tab, trayType, trayHeaderText, trayTitle, trayMessage, trayButtonText,
+      tab, trayType, trayHeaderText, trayTitle, trayMessage, trayButtonText, trayV2Type, trayV2HeaderEnabled,trayV2HeaderText,trayV2StatusTextMap,trayV2Title,
+  trayV2Message,trayV2Buttons,trayV2VerticalButtons,
       themeMode, appTitle, topNav, activeTopNavId, sidebarMode, sidebarTitle, sideItems, activeSideId, footerUserName, footerNotice,
       listMenu, listSubMenu, listTitle, listSubtitle, menuItems, extraButtons, showOverlay, tableMode, searchFilter, columns, rows,
       showContentPagination, contentCurrentPage, contentTotalPages, showContentEmptyState, contentEmptyStateMessage,
@@ -344,7 +405,55 @@ export default function App() {
           </header>
 
           <div className="p-4">
-            {tab === 'tray' && <TrayPreview trayType={trayType} trayMeta={trayMeta} trayHeaderText={trayHeaderText} trayTitle={trayTitle} trayMessage={trayMessage} trayTime={trayTime} trayButtonText={trayButtonText} trayClosing={trayClosing} onClose={closeTray} />}
+      {tab === 'tray' && (
+  <div className="grid gap-3">
+    <div className="flex items-center gap-2">
+      <button
+        type="button"
+        onClick={() => setTrayVersion('v1')}
+        className={'rounded-xl border px-3 py-2 text-[12px] font-extrabold transition ' + (trayVersion === 'v1' ? 'border-white/35 bg-white/10' : 'border-white/15 bg-white/5 hover:bg-white/10')}
+      >
+        Tray V1
+      </button>
+      <button
+        type="button"
+        onClick={() => setTrayVersion('v2')}
+        className={'rounded-xl border px-3 py-2 text-[12px] font-extrabold transition ' + (trayVersion === 'v2' ? 'border-white/35 bg-white/10' : 'border-white/15 bg-white/5 hover:bg-white/10')}
+      >
+        Tray V2
+      </button>
+    </div>
+
+    {trayVersion === 'v1' ? (
+      <TrayPreview
+        trayType={trayType}
+        trayMeta={trayMeta}
+        trayHeaderText={trayHeaderText}
+        trayTitle={trayTitle}
+        trayMessage={trayMessage}
+        trayTime={trayTime}
+        trayButtonText={trayButtonText}
+        trayClosing={trayClosing}
+        onClose={closeTray}
+      />
+    ) : (
+      <TrayPreviewV2
+        trayType={trayV2Type}
+        trayMeta={trayV2Meta}
+        headerEnabled={trayV2HeaderEnabled}
+        headerText={trayV2HeaderText}
+        statusText={trayV2StatusTextMap[trayV2Type]}
+        title={trayV2Title}
+        message={trayV2Message}
+        time={trayV2Time}
+        buttons={trayV2Buttons}
+        verticalButtons={trayV2VerticalButtons}
+        trayClosing={trayClosing}
+        onClose={closeTray}
+      />
+    )}
+  </div>
+)}
             {tab === 'layout' && (
               <div className="grid gap-4">
                 <div className="text-[13px] font-semibold leading-relaxed text-white/75">아래는 "앱 레이아웃(Topbar + Sidebar + Content)"을 1200×800 고정 프레임으로 미리보는 화면이야.</div>
@@ -443,7 +552,45 @@ export default function App() {
           </header>
 
           <div className="max-h-[calc(100vh-200px)] overflow-y-auto p-4">
-            {tab === 'tray' && <TrayEditor trayType={trayType} setTrayType={setTrayType} trayHeaderText={trayHeaderText} setTrayHeaderText={setTrayHeaderText} trayTitle={trayTitle} setTrayTitle={setTrayTitle} trayMessage={trayMessage} setTrayMessage={setTrayMessage} trayButtonText={trayButtonText} setTrayButtonText={setTrayButtonText} onUpdateTime={() => setTrayTime(formatNow())} onReset={resetTray} />}
+{tab === 'tray' && (
+  trayVersion === 'v1' ? (
+    <TrayEditor
+      trayType={trayType}
+      setTrayType={setTrayType}
+      trayHeaderText={trayHeaderText}
+      setTrayHeaderText={setTrayHeaderText}
+      trayTitle={trayTitle}
+      setTrayTitle={setTrayTitle}
+      trayMessage={trayMessage}
+      setTrayMessage={setTrayMessage}
+      trayButtonText={trayButtonText}
+      setTrayButtonText={setTrayButtonText}
+      onUpdateTime={() => setTrayTime(formatNow())}
+      onReset={resetTray}
+    />
+  ) : (
+    <TrayEditorV2
+      trayType={trayV2Type}
+      setTrayType={setTrayV2Type}
+      headerEnabled={trayV2HeaderEnabled}
+      setHeaderEnabled={setTrayV2HeaderEnabled}
+      headerText={trayV2HeaderText}
+      setHeaderText={setTrayV2HeaderText}
+      statusTextMap={trayV2StatusTextMap}
+      setStatusTextMap={setTrayV2StatusTextMap}
+      title={trayV2Title}
+      setTitle={setTrayV2Title}
+      message={trayV2Message}
+      setMessage={setTrayV2Message}
+      buttons={trayV2Buttons}
+      setButtons={setTrayV2Buttons}
+      verticalButtons={trayV2VerticalButtons}
+      setVerticalButtons={setTrayV2VerticalButtons}
+      onUpdateTime={() => setTrayV2Time(formatNow())}
+      onReset={resetTrayV2}
+    />
+  )
+)}
             {tab === 'layout' && <LayoutEditor
               themeMode={themeMode}
               setThemeMode={setThemeMode}

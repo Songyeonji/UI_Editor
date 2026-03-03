@@ -58,8 +58,8 @@ export const LogModalPreview: React.FC<LogModalPreviewProps> = ({
           >
             <div className="flex items-center justify-between mb-2">
               <h3 className="text-[15px] font-black">{logConfig.itemName}</h3>
-              <StatusBadge variant={logConfig.detectionCount > 2 ? 'red' : 'yellow'}>
-                총 {logConfig.detectionCount}회 차단
+              <StatusBadge variant={logConfig.detectionCount > 2 ? 'blue' : 'yellow'}>
+                총 {logConfig.detectionCount}회 사용
               </StatusBadge>
             </div>
             <p className="mb-2 text-[12px] font-semibold" style={{ color: t.muted }}>
@@ -74,7 +74,7 @@ export const LogModalPreview: React.FC<LogModalPreviewProps> = ({
 
             {/* 로그 타임라인 */}
             <LogTimeline
-              title="차단 로그"
+              title="사용 로그"
               logs={logConfig.logs}
             />
           </div>
