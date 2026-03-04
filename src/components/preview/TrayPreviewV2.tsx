@@ -3,7 +3,7 @@ import React from 'react';
 import { TrayIcon } from '../ui/TrayIcon';
 import type { TrayButton, TrayMeta, TrayButtonColorKey } from '../../types';
 import type { TrayV2Type } from '../../types';
-
+import logo from '../../assets/logo.png';
 interface TrayPreviewV2Props {
   trayType: TrayV2Type;
   trayMeta: TrayMeta;
@@ -70,13 +70,13 @@ export const TrayPreviewV2: React.FC<TrayPreviewV2Props> = ({
   return (
     <div className="grid gap-4">
       <div className="text-[13px] font-semibold leading-relaxed text-white/75">
-        V2: 350×400 고정 카드 (V1 헤더/톤 동일) + 버튼 색상 선택
+        V2: 350×250 고정 카드 (V1 헤더/톤 동일) + 버튼 색상 선택
       </div>
 
       <div className="relative h-[520px] overflow-hidden rounded-2xl border border-white/15 bg-white/1">
         <div
           className={
-            "absolute bottom-[70px] right-4 flex h-[350px] w-[350px] origin-bottom-right flex-col overflow-hidden rounded-[10px] bg-white shadow-[0_20px_25px_-5px_rgba(0,0,0,0.35),0_10px_10px_-5px_rgba(0,0,0,0.22)] " +
+            "absolute bottom-[70px] right-4 flex h-[260px] w-[380px] origin-bottom-right flex-col overflow-hidden rounded-[10px] bg-white shadow-[0_20px_25px_-5px_rgba(0,0,0,0.35),0_10px_10px_-5px_rgba(0,0,0,0.22)] " +
             (trayClosing
               ? "animate-[toastOut_.22s_ease-in_forwards]"
               : "animate-[toastIn_.22s_ease-out]")
@@ -102,7 +102,8 @@ export const TrayPreviewV2: React.FC<TrayPreviewV2Props> = ({
             >
               <div className="flex items-center gap-3">
                 <div className="grid h-5 w-5 place-items-center">
-                  <TrayIcon type={trayType as any} />
+
+                  <TrayIcon type="info" logoSrc={logo} />
                 </div>
                 <div className="text-[15px] font-extrabold text-white drop-shadow-sm">
                   {headerText}
@@ -183,20 +184,35 @@ export const TrayPreviewV2: React.FC<TrayPreviewV2Props> = ({
 
           {/* Footer Buttons */}
           <div className="border-t border-[#e5e7eb] bg-[#f9fafb] p-3">
-            <div className={(isColumn ? "flex flex-col" : "grid grid-cols-2") + " gap-2"}>
-              {buttons.map((b) => (
-                <div key={b.id} className="w-full p-[2px]">
-                  <button
-                    type="button"
-                    onClick={onClose}
-                    className="w-full rounded-lg py-2 text-[13px] font-black text-white shadow-[0_1px_3px_rgba(0,0,0,.15)] transition hover:-translate-y-[1px]"
-                    style={{ backgroundColor: resolveBtnColor(b) }}
-                  >
-                    {b.label}
-                  </button>
+            {/** ✅ 2개 이상일 때만 verticalButtons 옵션을 적용 */}
+            {(() => {
+              const useColumn = buttons.length >= 2 && verticalButtons;
+
+              // ✅ 가로 배치일 때: 1개=full / 2개=grid-cols-2 / 3개=grid-cols-3
+              const rowClass =
+                buttons.length === 1
+                  ? 'grid grid-cols-1'
+                  : buttons.length === 2
+                    ? 'grid grid-cols-2'
+                    : 'grid grid-cols-3';
+
+              return (
+                <div className={(useColumn ? 'flex flex-col' : rowClass) + ' gap-2'}>
+                  {buttons.map((b) => (
+                    <div key={b.id} className="w-full p-[2px]">
+                      <button
+                        type="button"
+                        onClick={onClose}
+                        className="w-full rounded-lg py-2 text-[13px] font-black text-white shadow-[0_1px_3px_rgba(0,0,0,.15)] transition hover:-translate-y-[1px]"
+                        style={{ backgroundColor: resolveBtnColor(b) }}
+                      >
+                        {b.label}
+                      </button>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
+              );
+            })()}
           </div>
         </div>
 

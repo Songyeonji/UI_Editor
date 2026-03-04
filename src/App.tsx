@@ -135,7 +135,7 @@ const [trayVersion, setTrayVersion] = useState<TrayVersion>(() => {
     () => loadFromSession()?.trayV2Buttons || [{ id: uid('traybtn'), label: '확인' }]
   );
   const [trayV2VerticalButtons, setTrayV2VerticalButtons] = useState(
-    () => loadFromSession()?.trayV2VerticalButtons ?? true
+    () => loadFromSession()?.trayV2VerticalButtons ?? false
   );
 useEffect(() => {
   const onKeyDown = (e: KeyboardEvent) => {
@@ -157,7 +157,7 @@ const resetTrayV2 = () => {
   setTrayV2Title('알림 제목(V2)입니다');
   setTrayV2Message(`V2 메시지입니다.\n350×500 카드에 표시됩니다.`);
   setTrayV2Buttons([{ id: uid('traybtn'), label: '확인' }]);
-  setTrayV2VerticalButtons(true);
+  setTrayV2VerticalButtons(false);
   setTrayV2Time(formatNow());
 };
   // Layout State
