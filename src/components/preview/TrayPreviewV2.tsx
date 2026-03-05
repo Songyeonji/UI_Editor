@@ -183,7 +183,7 @@ export const TrayPreviewV2: React.FC<TrayPreviewV2Props> = ({
           </div>
 
           {/* Footer Buttons */}
-          <div className="border-t border-[#e5e7eb] bg-[#f9fafb] p-3">
+          <div className="border-t border-[#e5e7eb] bg-[#f9fafb] p-1.5">
             {/** ✅ 2개 이상일 때만 verticalButtons 옵션을 적용 */}
             {(() => {
               const useColumn = buttons.length >= 2 && verticalButtons;
@@ -191,7 +191,7 @@ export const TrayPreviewV2: React.FC<TrayPreviewV2Props> = ({
               // ✅ 가로 배치일 때: 1개=full / 2개=grid-cols-2 / 3개=grid-cols-3
               const rowClass =
                 buttons.length === 1
-                  ? 'grid grid-cols-1'
+                  ? 'grid grid-cols-2'   // ← 1개도 2열 그리드
                   : buttons.length === 2
                     ? 'grid grid-cols-2'
                     : 'grid grid-cols-3';
@@ -199,7 +199,12 @@ export const TrayPreviewV2: React.FC<TrayPreviewV2Props> = ({
               return (
                 <div className={(useColumn ? 'flex flex-col' : rowClass) + ' gap-2'}>
                   {buttons.map((b) => (
-                    <div key={b.id} className="w-full p-[2px]">
+                    <div
+                      key={b.id}
+                      className={
+                        'w-full p-[2px]' +
+                        (buttons.length === 1 ? ' col-start-2' : '')  // ← 1개면 오른쪽 칸
+                      }>
                       <button
                         type="button"
                         onClick={onClose}
