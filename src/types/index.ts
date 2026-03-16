@@ -2,7 +2,7 @@
 
 import type { ButtonVariant } from '../components/ui/Button';
 
-export type TabKey = "tray" | "layout" | "content" | "approval" | "modal";
+export type TabKey = "tray" | "layout" | "content" | "approval" | "modal" | "register" | "company";
 export type TrayType = "info" | "success" | "warning" | "error";
 // ✅ V2 전용
 export type TrayVersion = "v1" | "v2";
@@ -178,5 +178,62 @@ export interface BadgeOptions {
 }
 
 export type UploaderType = 'none' | 'document' | 'program';
+
+// ─── Register Form Editor ───────────────────────────────────────────────────
+export type RegisterFieldType =
+  | 'text'        // 일반 텍스트 인풋 (이름, 아이디, 회사명 등)
+  | 'email'       // 이메일 + 인증코드 발송 버튼
+  | 'code'        // 인증코드 확인 필드
+  | 'password'    // 비밀번호 (눈 아이콘)
+  | 'department'  // 소속 부서 선택 버튼
+  | 'position'    // 직위 체크박스 그룹
+  | 'terms';      // 약관 동의 체크박스 + 링크 화살표
+
+export type RegisterSectionIcon = 'building' | 'users' | 'none';
+
+export interface RegisterField {
+  id: string;
+  type: RegisterFieldType;
+  label: string;
+  placeholder?: string;
+  options?: Array<{ id: string; label: string }>; // position 타입에서 사용
+}
+
+export interface RegisterSection {
+  id: string;
+  title: string;
+  icon: RegisterSectionIcon;
+  fields: RegisterField[];
+}
+
+export interface RegisterFormConfig {
+  formTitle: string;
+  showNavLinks: boolean;
+  sections: RegisterSection[];
+  termsLabel: string;
+  privacyLabel: string;
+  submitText: string;
+}
+
+// ─── Company Registration Form Editor ────────────────────────────────────────
+export interface CompanyInputField {
+  id: string;
+  label: string;
+  placeholder?: string;
+}
+
+export interface CompanyButton {
+  id: string;
+  label: string;
+}
+
+export interface CompanyFormConfig {
+  formTitle: string;
+  formSubtitle: string;
+  fields: CompanyInputField[];
+  buttons: CompanyButton[];
+  showNotice: boolean;
+  noticeText: string;
+}
 
 export type { ButtonVariant };

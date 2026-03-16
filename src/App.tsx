@@ -10,6 +10,10 @@ import { LayoutEditor } from './components/editors/LayoutEditor';
 import { ContentEditor } from './components/editors/ContentEditor';
 import { ApprovalEditor } from './components/editors/ApprovalEditor';
 import { ModalEditor } from './components/editors/ModalEditor';
+import { RegisterFormPreview } from './components/preview/RegisterFormPreview';
+import { RegisterFormEditor } from './components/editors/RegisterFormEditor';
+import { CompanyFormPreview } from './components/preview/CompanyFormPreview';
+import { CompanyFormEditor } from './components/editors/CompanyFormEditor';
 import { TRAY_META, THEME, TRAY_V2_META } from './constants/theme';
 import { formatNow, uid } from './utils/helpers';
 import { TrayPreviewV2 } from './components/preview/TrayPreviewV2';
@@ -40,6 +44,8 @@ import type {
   TrayV2Type,
   TrayButton,
   TrayVersion,
+  RegisterFormConfig,
+  CompanyFormConfig,
 } from './types';
 import type { DateRange } from './components/ui/DateRangePicker';
 import { LogModalPreview } from './components/preview/LogModalPreview';
@@ -324,6 +330,64 @@ const resetTrayV2 = () => {
     };
   });
 
+  // Register Form State
+  const [registerFormConfig, setRegisterFormConfig] = useState<RegisterFormConfig>(() => {
+    const saved = loadFromSession()?.registerFormConfig;
+    if (saved) return saved;
+    return {
+      formTitle: '사용자 등록',
+      showNavLinks: true,
+      sections: [
+        {
+          id: uid('section'),
+          title: '회사 정보',
+          icon: 'building',
+          fields: [
+            { id: uid('field'), type: 'text', label: '사업자등록번호', placeholder: '000-00-00000' },
+            { id: uid('field'), type: 'text', label: '회사명', placeholder: '회사명을 입력해주세요' },
+            { id: uid('field'), type: 'department', label: '소속 부서' },
+            { id: uid('field'), type: 'position', label: '직위' },
+          ],
+        },
+        {
+          id: uid('section'),
+          title: '사용자 정보',
+          icon: 'users',
+          fields: [
+            { id: uid('field'), type: 'text', label: '이름', placeholder: '이름을 입력해주세요' },
+            { id: uid('field'), type: 'text', label: '아이디', placeholder: '5~20자의 영문 또는 숫자 조합' },
+            { id: uid('field'), type: 'email', label: '이메일' },
+            { id: uid('field'), type: 'code', label: '인증코드' },
+            { id: uid('field'), type: 'password', label: '비밀번호', placeholder: '9~25자의 영문, 숫자, 특수문자 조합' },
+            { id: uid('field'), type: 'password', label: '비밀번호 확인', placeholder: '비밀번호를 다시 입력해주세요' },
+            { id: uid('field'), type: 'terms', label: '약관' },
+          ],
+        },
+      ],
+      termsLabel: '이용약관 동의(필수)',
+      privacyLabel: '개인정보 수집 및 이용동의(필수)',
+      submitText: '가입하기',
+    };
+  });
+
+  // Company Form State
+  const [companyFormConfig, setCompanyFormConfig] = useState<CompanyFormConfig>(() => {
+    const saved = loadFromSession()?.companyFormConfig;
+    if (saved) return saved;
+    return {
+      formTitle: '회사등록',
+      formSubtitle: '회사 정보를 입력해주세요.',
+      fields: [
+        { id: uid('cfield'), label: '사업자등록번호', placeholder: '000-00-00000' },
+        { id: uid('cfield'), label: '라이선스등록번호', placeholder: '라이선스 번호를 입력해주세요' },
+      ],
+      buttons: [{ id: uid('cbtn'), label: '등록하기' }],
+      showNotice: true,
+      noticeText:
+        '사업자등록번호 및 라이선스 등록번호를 정확히 입력해주세요.\n입력하신 정보는 서비스 등록에 활용됩니다.',
+    };
+  });
+
   const [previewScale, setPreviewScale] = useState(0.75);
   const previewWrapRef = useRef<HTMLDivElement | null>(null);
 
@@ -355,6 +419,8 @@ const resetTrayV2 = () => {
         startDate: datePickerConfig.startDate.toISOString(),
         endDate: datePickerConfig.endDate.toISOString()
       }, logModalConfig,
+      registerFormConfig,
+      companyFormConfig,
     };
     saveToSession(state);
   }, [
@@ -365,7 +431,7 @@ const resetTrayV2 = () => {
     approvalTitle, approvalSubtitle, formFields, uploaderType, documentFiles, programFiles, showPagination, currentPage, totalPages, showEmptyState, emptyStateMessage,
     modalType, confirmType, modalTitle, modalMessage, confirmButtonText, cancelButtonText, showCancelButton, showModalEmptyState, modalEmptyStateMessage,
     showTable, tableData, modalHeader, showModalHeader, modalSize, modalHeight, showModalPagination, modalCurrentPage, modalTotalPages, checkboxOption, noticeField,
-    datePickerConfig, logModalConfig,
+    datePickerConfig, logModalConfig, registerFormConfig, companyFormConfig,
   ]);
 
   return (
@@ -384,10 +450,10 @@ const resetTrayV2 = () => {
         </div>
 
         <div className="flex items-center gap-2">
-          {(['tray', 'layout', 'content', 'approval', 'modal'] as const).map((t) => (
+          {(['tray', 'layout', 'content', 'approval', 'modal', 'register', 'company'] as const).map((t) => (
             <button key={t} type="button" onClick={() => setTab(t)}
               className={'rounded-xl border px-4 py-2 text-[13px] font-extrabold transition ' + (tab === t ? 'border-white/35 bg-white/10' : 'border-white/15 bg-white/5 hover:bg-white/10')}>
-              {t === 'tray' ? '트레이' : t === 'layout' ? '레이아웃' : t === 'content' ? '콘텐츠' : t === 'approval' ? '승인' : '모달'}
+              {t === 'tray' ? '트레이' : t === 'layout' ? '레이아웃' : t === 'content' ? '콘텐츠' : t === 'approval' ? '승인' : t === 'modal' ? '모달' : t === 'register' ? '가입 폼' : '회사등록'}
             </button>
           ))}
         </div>
@@ -397,10 +463,10 @@ const resetTrayV2 = () => {
         <section className="w-full overflow-hidden rounded-2xl border border-white/15 bg-white/5 shadow-[0_10px_30px_rgba(0,0,0,.25)] backdrop-blur">
           <header className="flex items-center justify-between gap-2 border-b border-white/15 px-4 py-3">
             <h2 className="text-[14px] font-extrabold tracking-tight">
-              {tab === 'tray' ? '트레이 알림' : tab === 'layout' ? '레이아웃' : tab === 'content' ? '콘텐츠' : tab === 'approval' ? '승인 양식' : '모달'} 미리보기
+              {tab === 'tray' ? '트레이 알림' : tab === 'layout' ? '레이아웃' : tab === 'content' ? '콘텐츠' : tab === 'approval' ? '승인 양식' : tab === 'modal' ? '모달' : tab === 'register' ? '회원가입 폼' : '회사등록 폼'} 미리보기
             </h2>
             <span className="rounded-full border border-white/15 bg-white/5 px-2 py-1 text-[12px] font-semibold text-white/80">
-              {tab === 'tray' ? trayType.toUpperCase() : tab === 'layout' ? themeMode.toUpperCase() : tab === 'content' ? tableMode.toUpperCase() : tab === 'approval' ? 'FORM' : modalType.toUpperCase()}
+              {tab === 'tray' ? trayType.toUpperCase() : tab === 'layout' ? themeMode.toUpperCase() : tab === 'content' ? tableMode.toUpperCase() : tab === 'approval' ? 'FORM' : tab === 'modal' ? modalType.toUpperCase() : tab === 'register' ? 'REGISTER' : 'COMPANY'}
             </span>
           </header>
 
@@ -540,6 +606,24 @@ const resetTrayV2 = () => {
               </div>
             )}
 
+            {tab === 'register' && (
+              <div className="grid gap-4">
+                <div className="text-[13px] font-semibold leading-relaxed text-white/75">
+                  아래는 "회원가입 폼" 미리보기야. 필드에 직접 입력도 가능해.
+                </div>
+                <RegisterFormPreview config={registerFormConfig} />
+              </div>
+            )}
+
+            {tab === 'company' && (
+              <div className="grid gap-4">
+                <div className="text-[13px] font-semibold leading-relaxed text-white/75">
+                  아래는 "회사등록 폼" 미리보기야. 필드에 직접 입력도 가능해.
+                </div>
+                <CompanyFormPreview config={companyFormConfig} />
+              </div>
+            )}
+
           </div>
         </section>
 
@@ -547,7 +631,7 @@ const resetTrayV2 = () => {
           <header className="flex items-center justify-between gap-2 border-b border-white/15 px-4 py-3">
             <h2 className="text-[14px] font-extrabold tracking-tight">오른쪽 설정 패널</h2>
             <span className="rounded-full border border-white/15 bg-white/5 px-2 py-1 text-[12px] font-semibold text-white/80">
-              {tab === 'tray' ? 'Tray' : tab === 'layout' ? 'Layout' : tab === 'content' ? 'Content' : tab === 'approval' ? 'Approval' : 'Modal'}
+              {tab === 'tray' ? 'Tray' : tab === 'layout' ? 'Layout' : tab === 'content' ? 'Content' : tab === 'approval' ? 'Approval' : tab === 'modal' ? 'Modal' : tab === 'register' ? 'Register' : 'Company'}
             </span>
           </header>
 
@@ -615,6 +699,12 @@ const resetTrayV2 = () => {
               setNoticeField={setNoticeField} />}
             {tab === 'modal' && <ModalEditor modalType={modalType} setModalType={setModalType} confirmType={confirmType} setConfirmType={setConfirmType} modalTitle={modalTitle} setModalTitle={setModalTitle} modalMessage={modalMessage} setModalMessage={setModalMessage} confirmButtonText={confirmButtonText} setConfirmButtonText={setConfirmButtonText} cancelButtonText={cancelButtonText} setCancelButtonText={setCancelButtonText} showCancelButton={showCancelButton} setShowCancelButton={setShowCancelButton} showEmptyState={showModalEmptyState} setShowEmptyState={setShowModalEmptyState} emptyStateMessage={modalEmptyStateMessage} setEmptyStateMessage={setModalEmptyStateMessage} showTable={showTable} setShowTable={setShowTable} tableData={tableData} setTableData={setTableData} modalHeader={modalHeader} setModalHeader={setModalHeader} showModalHeader={showModalHeader} setShowModalHeader={setShowModalHeader} modalSize={modalSize} setModalSize={setModalSize} modalHeight={modalHeight} setModalHeight={setModalHeight} showPagination={showModalPagination} setShowPagination={setShowModalPagination} currentPage={modalCurrentPage} setCurrentPage={setModalCurrentPage} totalPages={modalTotalPages} setTotalPages={setModalTotalPages} logModalConfig={logModalConfig}
               setLogModalConfig={setLogModalConfig} />}
+            {tab === 'register' && (
+              <RegisterFormEditor config={registerFormConfig} setConfig={setRegisterFormConfig} />
+            )}
+            {tab === 'company' && (
+              <CompanyFormEditor config={companyFormConfig} setConfig={setCompanyFormConfig} />
+            )}
           </div>
         </aside>
       </div>
